@@ -1,8 +1,9 @@
-import './ResultPanel.css'
+import './ResultPanel.css';
+import React from 'react';
 
 function ResultPanel () {
     return (
-    <div className='resultPanelContainer'>
+    <div className='resultPanel notDropZone'>
     <button> Launch </button> 
     <button> End</button>
     <div className='consoleContainer'>Result panel </div>

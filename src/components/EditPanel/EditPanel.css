@@ -7,9 +7,35 @@
 .canvas{
     border: 1px solid green;
     border-radius: 4px;
+    border-top-left-radius: 0px;
+    border-top-left-radius: 0px;
 
-    margin: 2px;
     padding: 2px;
 
     min-height: 80%;
+}
+
+.tabContainer{
+    display: flex;
+    flex-direction: row;
+
+    height: 10%;    
+}
+
+.canvasTab{ 
+    border: 1px solid green;
+    border-bottom: 0px;
+    border-radius: 4px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+
+    background-color: rgba(40, 255, 40, 0.245);
+
+    padding: 10px;
+
+    font-size: 100%;
+}
+
+.canvasTab.active {
+    border: 2px solid darkgreen;
 }

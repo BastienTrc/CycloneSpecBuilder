@@ -8,7 +8,7 @@
     min-height: 80%;
 }
 
-.resultPanelContainer{
+.resultPanel{
     flex-grow: 2;
 
     padding: 2px;
