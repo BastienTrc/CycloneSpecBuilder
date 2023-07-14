@@ -9,22 +9,8 @@
     border: 1px solid salmon;
 }
 
-.blockLeft {
-    padding: 7px;
-    margin: 6px;
-    
-    /* border-radius: 50%; */
-    background: #aaaaaa;
-    
-    text-align: center;
-}
-
 .blockList{
     padding-inline-start: 20px;
-}
-
-.copyDraggable{
-    cursor: pointer;
 }
 
 .title{
