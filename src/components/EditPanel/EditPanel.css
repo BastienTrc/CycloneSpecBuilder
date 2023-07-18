@@ -15,15 +15,17 @@
     align-items: center;
     justify-content: end;
 
-    height: 74vh;
+    height: 76vh;
     width: 74vw;
+}
+
+.canvas{
+    aspect-ratio: unset;
 }
 
 .tabContainer{
     display: flex;
     flex-direction: row;
-
-    /* height: 10%;     */
 }
 
 .canvasTab{ 
@@ -35,11 +37,9 @@
 
     background-color: rgba(40, 255, 40, 0.245);
 
-    padding: 10px;
+    padding: 8px;
 
     font-size: 100%;
-
-    
 }
 
 .canvasTab.active {
@@ -55,16 +55,83 @@
     width: 100px; height: 100px; top: 300px; left: 100px; background:#777; position:relative;
 }
 
-.vis-network{
-    height: 100%;
-}
-
 #canvasHeader {
-    height: 8vh;
+    height: 9vh;
     width: 100%;
 
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: space-between;
+
+    border-bottom: 1px solid green; 
 }
+
+
+.switchButton{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  
+    background-color: #a5a5a5;
+    padding-left: 5px;
+    padding-right: 5px;
+
+    height: 100%;
+    border-top-right-radius: 2px;
+  }
+  
+  
+  /* Rounded sliders */
+  #switchEdgeMode{
+      display: none;
+  }
+  
+  input[type=checkbox]{
+      height: 0;
+      width: 0;
+      visibility: hidden;
+  }
+  
+  .switchButtonLabel {
+    content: '';
+      cursor: pointer;
+      text-indent: -9999px;
+      width: 60px;
+      height: 20px;
+      background: grey;
+      display: block;
+      border-radius: 100px;
+      position: relative;
+  
+    align-self: center;
+  }
+  
+  .switchButtonLabel:after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 16px;
+      transition: 0.3s;
+  }
+  
+  input:checked + .switchButtonLabel {
+      background: #bada55;
+  }
+  
+  input:checked + .switchButtonLabel:after {
+      left: calc(100% - 2px);
+      transform: translateX(-100%);
+  }
+  
+  .switchButtonLabel:active:after {
+    content: "AA";
+      width: 20px;
+  }
+  
+  /**** End slider button ****/

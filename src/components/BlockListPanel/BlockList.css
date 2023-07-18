@@ -1,18 +1,51 @@
 .blockListContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
     border: 2px solid black;
     margin: 2px;
     padding: 2px;
     border-radius: 4px;
 }
 
-.addBlockButton{
-    border: 1px solid salmon;
+.blockListTitle{
+    margin: 5px;
 }
+
+.blockListSeparator{
+    border: solid 1px black;
+    /* Need to take into account the padding */
+    width: calc(100% + 4px);
+    margin-bottom: 10px;
+  }
 
 .blockList{
-    padding-inline-start: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.libraryNode {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: space-between;
+
+    padding: 2px;
+    margin: 6px;
+    min-width: 80px;
+    
+    border-radius: 50%;
+    border-style: solid;
+    border-color: #2d81ff;
+    border-width: 1px;
+    background: #9ec2f7;
+
+    cursor: pointer;
+    outline:none;
 }
 
-.title{
-    margin: 5px;
+.libraryNode.selected{
+    border: solid 1.5px black;
+    background: #9ef7b9;
 }

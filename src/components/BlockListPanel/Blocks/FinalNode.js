@@ -1,23 +1,13 @@
 import React from 'react';
-import './Nodes.css'
-import {getNetwork} from './../../EditPanel/SpecCanvas'
+import { getNetwork } from '../../../utils/canvasInit';
 
 
 
 function FinalNode({id, setNodeContent}) {
-
-    function addNode(){
-        let network = getNetwork();
-        if (!network){
-            alert("Can't get canvas, maybe no editor opened?")
-        }
-        setNodeContent("End")
-        network.addNodeMode()
-    }
     
     return(
         <div>
-            <button className='libraryNode' onClick={() => addNode()}> End  </button>
+            <button id={id} className='libraryNode' onClick={() => setNodeContent(id)}> End  </button>
         </div>
     )
 }

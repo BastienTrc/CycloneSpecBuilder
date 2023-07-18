@@ -44,3 +44,7 @@
 
   min-height: 80vh;
 }
+
+.appContainer * {
+  outline:none;
+}
