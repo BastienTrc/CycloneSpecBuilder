@@ -1,0 +1,335 @@
+import { Network } from "vis-network/standalone";
+import { DataSet } from "vis-data/standalone"
+import { switchNodeContent, createSwitchButton } from "./canvasUtils";
+const deleteIcon = require('@mui/icons-material/Delete');
+const {networkOptions, nodeFont} =  require("./networkOptions");
+
+
+var network;
+
+// Text displayed in the header of the canvas
+var canvasInfo;
+
+var addNodeMode = false;
+var edgeMode = false;
+var deleteMode = false;
+var codeMode = false;
+const linkKey = 'l'
+const deleteKey = 'd'
+const codeKey = 'c'
+
+// Used to edit the node
+var nodeContent = "";
+var setEditContent;
+
+// Function that will open the dialog for editing node
+var setOpenDialog;
+var isDialogOpen = false;
+
+var switchButtons = [];
+
+// For unknown reason, initCanvas is run twice, causing problem with eventListeners
+var hasBeenInit;
+
+/**
+* Draw canvas with sample data and init every needed function
+* @param {*} setOpen 
+* @param {*} setContent 
+* @returns 
+*/
+export function initCanvas(setOpen, setContent){
+    if (hasBeenInit){
+        return;
+    }
+    hasBeenInit = true;
+    setOpenDialog = setOpen;
+    setEditContent = setContent;
+    // create an array with nodes
+    var nodes = new DataSet([
+        { id: "StartNode-1", label: "Start", font:nodeFont, code:"int a = 5;"},
+        { id: "Node-2", label: "firstStep", font:nodeFont, code:""},
+        { id: "EndNode-3", label: "firstStop", font:nodeFont, code:"int c = b + 3;"},
+        { id: "EndNode-4", label: "secondStop", font:nodeFont, code:""},
+        { id: "Node-5", label: "secondStep", font:nodeFont, code:"int res; a < b => (res == 0);"},
+    ]);
+    
+    // create an array with edges
+    // @ts-ignore Error checking problem with vis-network
+    var edges = new DataSet([
+        { from: "StartNode-1", to: "EndNode-3"},
+        { from: "StartNode-1", to: "Node-2" },
+        { from: "Node-2", to: "EndNode-4", label: "x > 0 && a < b" },
+        { from: "Node-2", to: "Node-5", label: "x >= 0 || a == b"},
+        { from: "Node-5", to: "EndNode-4", label: "canEnd == true"},
+    ]);
+    
+    // create a container for the network
+    var container = document.getElementById("canvasContainer");
+    if (!container){
+        return; //TODO Better handling
+    }
+    
+    var data = {
+        nodes: nodes,
+        edges: edges,
+    };
+    
+    // @ts-ignore Error checking problem with vis-network
+    network = new Network(container, data, networkOptions);
+   
+    initNetworkEvents(network);
+    initKeyEvents();
+    initCanvasHeader();
+}
+
+function initNetworkEvents(network){
+    network.on("doubleClick", function (params) {
+        showDialog();
+    });
+    
+    // Add listener in delete mode, click an element to delete it
+    network.on("click", function (params) {
+        if (deleteMode){
+            if (network.getSelectedNodes().length === 0 && network.getSelectedEdges().length === 0){
+                return;
+            }
+            network.deleteSelected();
+            network.unselectAll(); // Needed to avoid a bug when deleting several nodes successively. 
+            return
+        }
+        
+    });
+}
+
+function initKeyEvents(){
+    // Add listeners on Keydown
+    document.addEventListener('keydown', (event => {
+        // Disable shortcuts when editing a node and ignore when holding
+        if (event.repeat || isDialogOpen){
+            return;
+        }
+        switch (event.key) {
+            case "Escape":      // Cancel addNode action by pressing 'Escape'
+                cancelAction();
+            break;
+            case "Backspace":   // Delete node by pressing 'backspace'
+            // Make sure something was selected
+            if (network.getSelectedNodes().length === 0 && network.getSelectedEdges().length === 0){ 
+                return;
+            }
+            network.deleteSelected();
+            network.unselectAll();
+            break;
+            case linkKey:       // Enable link mode
+            // Switch only if edgeMode isn't already activated
+            if (!edgeMode){
+                switchEdgeMode();
+            }
+            break;
+            case deleteKey:       // Enable delete mode
+            // Switch only if deleteMode isn't already activated
+            if (!deleteMode){
+                switchButtons[0].click();
+            }
+            break;
+            case codeKey:       // Enable codde mode
+                switchButtons[1].click();
+            break;
+            default:
+            break;
+        }
+    }))
+    
+    // Add listener on keyup
+    document.addEventListener('keyup', (event => {
+        // Disable shortcuts when editing a node
+        if (isDialogOpen){
+            return;
+        }
+        switch (event.key) {
+            case linkKey:
+            if (edgeMode){ // Switch only if edgeMode is disabled
+                switchEdgeMode();
+            }
+            break;
+            case deleteKey:
+            if (deleteMode){ // Switch only if deleteMode is disabled
+                switchButtons[0].click()
+            }
+            break;
+            default:
+            break;
+        }
+    }))
+}
+
+/**
+* Add header to canvas featuring infos and editing buttons
+*/
+function initCanvasHeader() {
+    // initCanvasHeader is called twice for unknown reason. So we need to reset switchButtons
+    switchButtons = [];
+    
+    // Get canvas
+    let canvasContainer = document.getElementById("canvasContainer");
+    
+    // Create header
+    let canvasHeader = document.createElement("div");
+    canvasHeader.id = 'canvasHeader'
+    
+    // Create header info div
+    canvasInfo = document.createElement("div");
+    canvasInfo.id = "canvasInfo";
+    setCanvasInfo("Ready to draw!")
+    
+    // Create delete button
+    let deleteButton = createSwitchButton("Delete", switchDeleteMode);
+    deleteButton.className = "switchButton";
+    
+    // Create code display button
+    let codeButton = createSwitchButton("Code", switchCodeMode);
+    codeButton.className = "switchButton";
+
+
+    // Append the 3 created element to the header
+    canvasHeader.appendChild(deleteButton);
+    canvasHeader.appendChild(canvasInfo); 
+    canvasHeader.appendChild(codeButton);
+    
+    
+    // Add header on top of canvas
+    canvasContainer?.prepend(canvasHeader);
+}
+
+function switchDeleteMode() {
+    if (deleteMode){
+        deleteMode = false;
+        setCanvasInfo ("Ready to draw!");
+        return;
+    }
+    // Only one mode can be activated at a time.
+    cancelAction();
+    deleteMode = true;
+    setCanvasInfo ("Click to delete a node/edge.");
+}
+
+function switchCodeMode() {
+    switchNodeContent();
+    if (codeMode){
+        codeMode = false;
+        setCanvasInfo ("Ready to draw!");
+        return;
+    }
+    // Here, we may have several mode running at the same time
+    codeMode = true;
+    setCanvasInfo ("Now seeing the code in the nodes");
+}
+
+export function switchEdgeMode() {
+    if (edgeMode){
+        getNetwork().disableEditMode();
+        setCanvasInfo("Ready to draw!");
+        document.getElementById("EdgeNode")?.classList.remove('selected');
+        edgeMode = false;
+        return;
+    } 
+    // Only one mode can be activated at a time.
+    cancelAction();
+    nodeContent = "EdgeNode";
+    getNetwork().addEdgeMode();
+    setCanvasInfo("Click a node and drag to another one to link");
+    document.getElementById("EdgeNode")?.classList.add('selected');
+    edgeMode = true;
+    
+};
+
+/**
+* Cancel current edit action and toggle appropriated button. /!\ DON'T call it in function executed by switch buttons or endless recursion.
+* @returns 
+*/
+export function cancelAction() {
+    network.unselectAll();
+    
+    if (addNodeMode){
+        network.disableEditMode();
+        addNodeMode = false;
+        document.getElementById(nodeContent)?.classList.remove("selected");
+        setCanvasInfo("Ready to draw!");
+    }
+    
+    // Cancel by clicking the right switch button
+    let id = "";
+    if (edgeMode){
+        switchEdgeMode()
+    } else if (deleteMode){
+        id = 'switchDeleteMode'
+    }
+    
+    switchButtons.forEach((switchButton => {
+        if (switchButton.htmlFor === id){
+            switchButton.click();
+        }
+    }));
+}
+
+export function getNetwork(){
+    if (!network){
+        return null;
+    }
+    return network;
+};
+
+/**
+* Set info displayed in the header of the canvas
+* @param {String} content 
+*/
+export function setCanvasInfo(content){
+    canvasInfo.innerText = content;
+}
+
+/**
+* Set content for the node to be modified
+* @param {String} content 
+*/
+export function setNodeContent(content){
+    nodeContent = content;
+}
+
+export function getNodeContent(){
+    return nodeContent;
+}
+
+export function setAddNodeMode(value){
+    addNodeMode = value;
+}
+
+/**
+ * Show dialogForm to edit node
+ * @returns 
+ */
+function showDialog() {
+    let selectedNodes = network.getSelectedNodes();
+    
+    // Check that a node was selected
+    if (selectedNodes.length !== 1){
+        return;
+    }
+    // Default value of form is current content of the selected node
+    nodeContent = network.body.data.nodes.get(selectedNodes[0]).label
+    setEditContent(nodeContent);
+    setOpenDialog(true);
+    setIsDialogOpen(true);
+}
+
+export function setIsDialogOpen(value){
+    isDialogOpen = value;
+}
+
+export function pushSwitchButtons(value){
+    switchButtons.push(value);
+}
+
+//Debug function
+export function blabla(){
+    console.log(`${addNodeMode}///${deleteMode}///${edgeMode}`)
+}

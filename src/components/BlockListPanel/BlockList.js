@@ -1,9 +1,10 @@
 import './BlockList.css'
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { cancelAction, getNetwork, setAddNodeMode, setCanvasInfo, setNodeContent} from '../../utils/canvasInit';
+import { cancelAction, getNetwork, setAddNodeMode, setCanvasInfo, setNodeContent, switchEdgeMode} from '../../utils/canvas/canvasInit';
 import StartNode from './Blocks/StartNode';
 import FinalNode from './Blocks/FinalNode';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 
 
 /**
@@ -37,28 +38,26 @@ const BlockList = () => {
   // TODO Generate dynamically after
   const [blocks,setBlocks] = useState([
     {  id: "StartNode" },
+    {  id: "Node" },
     {  id: "EndNode" }
   ]);
   
-  // {/* <div className='copyDraggable blockLeft'>{block.title}</div> */}
-  const blockList = blocks.map(block =>{
+  var blockList = blocks.map(block =>{
     return <StartNode id={block.id} setNodeContent={addNode}/>
-    // switch (block.id) {
-    //   case "StartNode":
-    //   return <StartNode id={block.id} setNodeContent={setNodeContent}/>
-    //   case "EndNode":
-    //   return <FinalNode id={block.id} setNodeContent={setNodeContent}/>
-    //   default:
-    //   break;
-    // }
-  }
-  );
+  });
+
   
   return (
     <div className='blockListContainer'>
     <div className='blockListTitle'> BlockListPanel </div>
     <div className='blockListSeparator'/>
-    <div className='blockList'>{blockList}</div>
+    <div className='blockList'>
+      {blockList}
+     
+        <button onClick={switchEdgeMode} className='libraryNode' id='EdgeNode'>
+          <ArrowRightAltIcon fontSize='large'/>
+        </button>
+    </div>
     </div>
     );
   }

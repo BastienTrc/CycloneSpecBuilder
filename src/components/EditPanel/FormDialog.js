@@ -6,9 +6,9 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { getNetwork, setNodeContent } from '../../utils/canvasInit';
+import { getNetwork, setNodeContent, setIsDialogOpen} from '../../utils/canvas/canvasInit';
 
-
+// This code is in part made of the MUI Material example
 export default function FormDialog({open, setOpen, content}) {
 
    // Add listener to cancel addNode action
@@ -21,22 +21,25 @@ export default function FormDialog({open, setOpen, content}) {
 // Close the dialog
   function handleClose(){
     setOpen(false);
+    setIsDialogOpen(false)
     // Also need to set local 'open' for key shortcut
     open = false
   };
 
   // Close the dialog and edit the node if form isn't empty
   function editNode(){
-    setOpen(false);
-    // Also need to set local 'open' for key shortcut
-    open = false;
     // @ts-ignore Maybe doesn't know value property because from an API?
     let formValue = document.getElementById("formDialogName")?.value;
-    if (formValue === ""){
+    if (formValue === undefined || formValue === ""){
       return;
     }
     setNodeContent(formValue);
     getNetwork().editNode()
+    
+    setOpen(false);
+    setIsDialogOpen(false)
+     // Also need to set local 'open' for key shortcut
+     open = false;
   }
 
   return (
@@ -53,6 +56,7 @@ export default function FormDialog({open, setOpen, content}) {
             id="formDialogName"
             label={content}
             type="text"
+            defaultValue={content}
             fullWidth
             variant="standard"
             multiline={true}

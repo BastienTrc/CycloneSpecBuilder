@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import './EditPanel.css';
-import { initCanvas } from "../../utils/canvasInit";
+import { initCanvas } from "../../utils/canvas/canvasInit";
 import FormDialog from './FormDialog'
 
 
@@ -23,6 +23,5 @@ function SpecCanvas({panel}){
     </>
     )
   }
-  
   
   export default SpecCanvas

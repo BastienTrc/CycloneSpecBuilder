@@ -1,5 +1,5 @@
 import React from 'react';
-import { getNetwork } from '../../../utils/canvasInit';
+import { getNetwork } from '../../../utils/canvas/canvasInit';
 
 
 
