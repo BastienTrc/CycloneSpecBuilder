@@ -14,7 +14,7 @@ export default function FormDialog({open, setOpen, content}) {
    // Add listener to cancel addNode action
    document.addEventListener('keydown', (event => {
     if (open && !event.shiftKey && event.key === "Enter"){
-        editNode();
+        doEdit();
     }
 }))
 
@@ -27,14 +27,25 @@ export default function FormDialog({open, setOpen, content}) {
   };
 
   // Close the dialog and edit the node if form isn't empty
-  function editNode(){
+  function doEdit(){
     // @ts-ignore Maybe doesn't know value property because from an API?
     let formValue = document.getElementById("formDialogName")?.value;
     if (formValue === undefined || formValue === ""){
+      setOpen(false);
+      setIsDialogOpen(false)
+       // Also need to set local 'open' for key shortcut
+       open = false;
       return;
     }
     setNodeContent(formValue);
-    getNetwork().editNode()
+    let network = getNetwork();
+    console.log(network.getSelectedNodes())
+    if (network.getSelectedNodes().length === 1){
+      network.editNode();
+    } else {
+      network.editEdgeMode();
+      network.disableEditMode();
+    }
     
     setOpen(false);
     setIsDialogOpen(false)
@@ -45,10 +56,10 @@ export default function FormDialog({open, setOpen, content}) {
   return (
     <div>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Edit node</DialogTitle>
+        <DialogTitle>Edit node/edge</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Please enter a name for the node.
+            Please enter a name (node) or a condition (edge).
           </DialogContentText>
           <TextField
             autoFocus
@@ -64,7 +75,7 @@ export default function FormDialog({open, setOpen, content}) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={editNode}>Edit node</Button>
+          <Button onClick={doEdit}>Edit</Button>
         </DialogActions>
       </Dialog>
     </div>

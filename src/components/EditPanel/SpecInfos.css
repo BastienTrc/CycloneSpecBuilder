@@ -1,0 +1,13 @@
+.specInfosContainer{
+    width: 100%;    
+}
+
+.specInfosTitle{
+    margin: 5px;
+    align-self: center;
+}
+
+.infosContainer{  
+    padding: 5px;
+    gap: 10px;
+}

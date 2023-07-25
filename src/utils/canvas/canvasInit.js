@@ -1,9 +1,11 @@
 import { Network } from "vis-network/standalone";
 import { DataSet } from "vis-data/standalone"
 import { switchNodeContent, createSwitchButton } from "./canvasUtils";
+import { compileGraph } from "../compile/compileGraph";
 const deleteIcon = require('@mui/icons-material/Delete');
 const {networkOptions, nodeFont} =  require("./networkOptions");
-
+const compileImg = require('../../resources/compile.png');
+const clearImg = require('../../resources/clear.png');
 
 var network;
 
@@ -31,19 +33,27 @@ var switchButtons = [];
 // For unknown reason, initCanvas is run twice, causing problem with eventListeners
 var hasBeenInit;
 
+// Show result of compile
+var showResult;
+
 /**
 * Draw canvas with sample data and init every needed function
 * @param {*} setOpen 
 * @param {*} setContent 
 * @returns 
 */
-export function initCanvas(setOpen, setContent){
+export function initCanvas(setOpen, setContent, setShowResult){
     if (hasBeenInit){
         return;
     }
     hasBeenInit = true;
     setOpenDialog = setOpen;
     setEditContent = setContent;
+    showResult = (value) => {
+        hasBeenInit = false; // Once we show result, canvas will disappear and won't be loaded.
+        setShowResult(value)
+    }
+
     // create an array with nodes
     var nodes = new DataSet([
         { id: "StartNode-1", label: "Start", font:nodeFont, code:"int a = 5;"},
@@ -76,7 +86,7 @@ export function initCanvas(setOpen, setContent){
     
     // @ts-ignore Error checking problem with vis-network
     network = new Network(container, data, networkOptions);
-   
+    
     initNetworkEvents(network);
     initKeyEvents();
     initCanvasHeader();
@@ -102,15 +112,16 @@ function initNetworkEvents(network){
 }
 
 function initKeyEvents(){
+    let canvasContainer = document.getElementById("canvasContainer")
     // Add listeners on Keydown
-    document.addEventListener('keydown', (event => {
-        // Disable shortcuts when editing a node and ignore when holding
+    canvasContainer?.addEventListener('keydown', (event => {
+        // Disable shortcuts when editing a node
         if (event.repeat || isDialogOpen){
             return;
         }
         switch (event.key) {
             case "Escape":      // Cancel addNode action by pressing 'Escape'
-                cancelAction();
+            cancelAction();
             break;
             case "Backspace":   // Delete node by pressing 'backspace'
             // Make sure something was selected
@@ -133,7 +144,7 @@ function initKeyEvents(){
             }
             break;
             case codeKey:       // Enable codde mode
-                switchButtons[1].click();
+            switchButtons[1].click();
             break;
             default:
             break;
@@ -141,7 +152,7 @@ function initKeyEvents(){
     }))
     
     // Add listener on keyup
-    document.addEventListener('keyup', (event => {
+    canvasContainer?.addEventListener('keyup', (event => {
         // Disable shortcuts when editing a node
         if (isDialogOpen){
             return;
@@ -189,13 +200,35 @@ function initCanvasHeader() {
     // Create code display button
     let codeButton = createSwitchButton("Code", switchCodeMode);
     codeButton.className = "switchButton";
-
-
+    
+    // Create compile button
+    let compileButton = document.createElement("button");
+    compileButton.onclick = compileCanvas;
+    
+    let compileIcon = document.createElement("img")
+    compileIcon.src = compileImg;
+    compileButton.appendChild(compileIcon)
+    compileButton.className = "imageButton";
+    compileIcon.className = "image";
+    
+    // Create delete button
+    let clearButton = document.createElement("button");
+    clearButton.onclick = clearCanvas;
+    
+    let clearIcon = document.createElement("img")
+    clearIcon.src = clearImg;
+    clearButton.appendChild(clearIcon)
+    clearButton.className = "imageButton";
+    clearIcon.className = "image";
+    
+    
+    
     // Append the 3 created element to the header
     canvasHeader.appendChild(deleteButton);
-    canvasHeader.appendChild(canvasInfo); 
     canvasHeader.appendChild(codeButton);
-    
+    canvasHeader.appendChild(canvasInfo); 
+    canvasHeader.appendChild(clearButton); 
+    canvasHeader.appendChild(compileButton); 
     
     // Add header on top of canvas
     canvasContainer?.prepend(canvasHeader);
@@ -214,13 +247,14 @@ function switchDeleteMode() {
 }
 
 function switchCodeMode() {
-    switchNodeContent();
+    switchNodeContent(nodeContent);
     if (codeMode){
         codeMode = false;
         setCanvasInfo ("Ready to draw!");
         return;
     }
-    // Here, we may have several mode running at the same time
+    cancelAddNodeMode()
+    // Here, we may have several mode running
     codeMode = true;
     setCanvasInfo ("Now seeing the code in the nodes");
 }
@@ -249,13 +283,7 @@ export function switchEdgeMode() {
 */
 export function cancelAction() {
     network.unselectAll();
-    
-    if (addNodeMode){
-        network.disableEditMode();
-        addNodeMode = false;
-        document.getElementById(nodeContent)?.classList.remove("selected");
-        setCanvasInfo("Ready to draw!");
-    }
+    cancelAddNodeMode();
     
     // Cancel by clicking the right switch button
     let id = "";
@@ -270,6 +298,28 @@ export function cancelAction() {
             switchButton.click();
         }
     }));
+}
+
+function cancelAddNodeMode(){
+    if (addNodeMode){
+        network.disableEditMode();
+        addNodeMode = false;
+        document.getElementById(nodeContent)?.classList.remove("selected");
+        setCanvasInfo("Ready to draw!");
+    }
+}
+
+function compileCanvas(){
+    showResult(true);
+    // Switch into the right mode. (Could have been handled in compile(network) but need to toggle button)
+    if (codeMode){
+        switchCodeMode();
+    }
+    compileGraph(network);
+}
+
+function clearCanvas(){
+    console.log("I will clear");
 }
 
 export function getNetwork(){
@@ -300,22 +350,33 @@ export function getNodeContent(){
 }
 
 export function setAddNodeMode(value){
+    if (value && codeMode){
+        // If adding a node while in code mode, need to switch in labelMode (or need to check which property to fill when adding node)
+        switchButtons[1].click();
+    }
     addNodeMode = value;
 }
 
 /**
- * Show dialogForm to edit node
- * @returns 
- */
+* Show dialogForm to edit node
+* @returns 
+*/
 function showDialog() {
     let selectedNodes = network.getSelectedNodes();
+    let selectedEdges = network.getSelectedEdges();
     
     // Check that a node was selected
-    if (selectedNodes.length !== 1){
+    if (selectedNodes.length === 1){
+        // Default value of form is current content of the selected node
+        nodeContent = network.body.data.nodes.get(selectedNodes[0]).label
+    } else if (selectedEdges.length === 1 ){
+        // Default value of form is current content of the selected edge
+        nodeContent = network.body.data.edges.get(selectedEdges[0]).label
+    } else {
+        // No node was selected
         return;
     }
-    // Default value of form is current content of the selected node
-    nodeContent = network.body.data.nodes.get(selectedNodes[0]).label
+    
     setEditContent(nodeContent);
     setOpenDialog(true);
     setIsDialogOpen(true);

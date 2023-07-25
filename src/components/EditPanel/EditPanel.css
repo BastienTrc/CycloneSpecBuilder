@@ -1,128 +1,21 @@
 .editPanelContainer{
-    flex-grow: 4;
-
     padding: 2px
 }
 
-.canvasContainer{
-    border: 1.5px solid green;
-    border-radius: 4px;
-    border-top-left-radius: 0px;
-    border-top-left-radius: 0px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: end;
-
-    height: 76vh;
-    width: 74vw;
-}
-
-.canvas{
-    aspect-ratio: unset;
-}
-
-.tabContainer{
-    display: flex;
-    flex-direction: row;
-}
-
 .canvasTab{ 
-    border: 1.5px solid green;
     border-bottom: 0px;
-    border-radius: 4px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-
-    background-color: rgba(40, 255, 40, 0.245);
-
-    padding: 8px;
-
+    
+    background-color: rgb(255, 202, 97);
+    
+    padding: 1vh;
+    
     font-size: 100%;
 }
 
 .canvasTab.active {
-    border: 2.5px solid darkgreen;
+    border: 2.5px solid rgb(209, 105, 0);
+    background-color: rgb(243, 165, 8);
     border-bottom: 0px;
 }
-
-
-#canvasHeader {
-    height: 9vh;
-    width: 100%;
-
-    display: flex;
-    align-items: center;
-
-    border-bottom: 1.5px solid green; 
-}
-
-#canvasInfo {
-    flex-grow: 1;
-    text-align: center;
-}
-
-.switchButton{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  
-    background-color: #a5a5a5;
-    padding-left: 5px;
-    padding-right: 5px;
-
-    height: 100%;
-  }
-  
-  
-  /* Rounded sliders */
-  
-  input[type=checkbox]{
-      height: 0;
-      width: 0;
-      visibility: hidden;
-  }
-  
-  .switchButtonLabel {
-    content: '';
-      cursor: pointer;
-      text-indent: -9999px;
-      width: 60px;
-      height: 20px;
-      background: grey;
-      display: block;
-      border-radius: 100px;
-      position: relative;
-  
-    align-self: center;
-  }
-  
-  .switchButtonLabel:after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 16px;
-      height: 16px;
-      background: #fff;
-      border-radius: 16px;
-      transition: 0.3s;
-  }
-  
-  input:checked + .switchButtonLabel {
-      background: #bada55;
-  }
-  
-  input:checked + .switchButtonLabel:after {
-      left: calc(100% - 2px);
-      transform: translateX(-100%);
-  }
-  
-  .switchButtonLabel:active:after {
-    content: "AA";
-      width: 20px;
-  }
-  
-  /**** End slider button ****/

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import './index.css';
 import BlockList from './components/BlockListPanel/BlockList';
@@ -10,13 +10,13 @@ import Footer from './components/Footer/Footer';
 
 function App() {
 
+  const [showResult, setShowResult] = useState(false)
+
   return (
     <>
-    <div className='App-header notDropZone'> HEADER </div>
+    <div className='App-header '> HEADER </div>
     <div className='appContainer'>
-      <BlockList/>
-      <EditPanel/>
-      <ResultPanel/>
+      {showResult ? <ResultPanel setShowResult={setShowResult}/> : <><BlockList/> <EditPanel setShowResult={setShowResult}/></>}
     
     </div>
     <Footer/>

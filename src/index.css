@@ -25,3 +25,43 @@ code {
   padding: 10px;
   cursor: move;
 }
+
+.fullSeparator{
+  border: solid 1px ;
+  border-color: inherit;
+  align-self: center;
+  /* Need to take into account the padding */
+  width: calc(100% + 4px);
+  margin-bottom: 5px;
+}
+
+.bordered{
+  border: 2px solid orange;
+  border-radius: 4px;
+}
+
+.spaced{
+  margin: 2px;
+  padding: 2px;
+}
+
+.grow{
+  flex-grow: 1;
+}
+
+.grow3{
+  flex-grow: 3;
+}
+
+.flex{
+  display: flex;
+}
+
+.evenly{
+  justify-content: space-evenly;
+}
+
+.flexC{
+  display: flex;
+  flex-direction: column;
+}

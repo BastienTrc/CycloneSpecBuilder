@@ -5,7 +5,7 @@ import { getNetwork, pushSwitchButtons, setNodeContent } from "./canvasInit";
 /**
 * Switch the properties 'label' and 'code' of every node 
 */
-export function switchNodeContent(){
+export function switchNodeContent(initalNodeContent){
     let network = getNetwork();
     let nodeSet = network.body.data.nodes;
     let nodeIndices = network.body.nodeIndices;
@@ -37,6 +37,9 @@ export function switchNodeContent(){
         edges: edges,
     };
     network.setData(data)
+
+    // Need to rollback nodeContent when calling AddNode disable code mode
+    setNodeContent(initalNodeContent);
 }
 
 /**
@@ -56,7 +59,7 @@ export function createSwitchButton(id,callFunc) {
     // CheckBox
     let edgeButtonInput = document.createElement("input");
     edgeButtonInput.id = `switch${id}Mode`;
-    edgeButtonInput.setAttribute("type", "checkbox")
+    edgeButtonInput.setAttribute("type", "checkbox");
     
     // Label
     let edgeButtonLabel = document.createElement("label");

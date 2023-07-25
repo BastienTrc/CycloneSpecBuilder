@@ -1,15 +1,24 @@
-.consoleContainer{
-    border: 1px solid green;
-    border-radius: 4px;
-    
-    margin: 2px;
+.resultPanel{
     padding: 2px;
-
-    min-height: 80%;
 }
 
-.resultPanel{
-    flex-grow: 2;
+.resultButton{ 
+    border: 1.5px solid black;
+    border-radius: 4px;
 
-    padding: 2px;
+    background-color: orange;
+
+    padding: 0.85vh;
+
+    font-size: 100%;
+
+    cursor: pointer;
+}
+
+.resultButton:hover{ 
+    background-color: rgb(237, 154, 0);
+}
+
+.terminal{
+    cursor: not-allowed;
 }

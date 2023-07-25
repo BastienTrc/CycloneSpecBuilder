@@ -1,9 +1,10 @@
 import './EditPanel.css';
 import React from 'react';
 import {useState, useEffect} from 'react';
-import SpecCanvas from './SpecCanvas';
+import Canvas from './Canvas';
+import SpecInfos from './SpecInfos';
 
-function EditPanel () {
+function EditPanel ({setShowResult}) {
     // List of all the tabs
     const [tabs,setTabs] = useState([
         {name:'tab1', id:"tab1"},
@@ -19,7 +20,7 @@ function EditPanel () {
     
     // List of the html buttons representing the tabs
     const tabList = tabs.map( tab => (
-        <button className="canvasTab" id={tab.id.toString()} onClick={() => setTab(tab.id)}> {tab.name}</button>
+        <button className="canvasTab bordered" id={tab.id.toString()} onClick={() => setTab(tab.id)}> {tab.name}</button>
         ));
         
         /**
@@ -35,10 +36,13 @@ function EditPanel () {
         }
         
         return (
+            <>
             <div className='editPanelContainer'>
-            <div className='tabContainer notDropZone'> {tabList} </div>
-            <SpecCanvas panel={tabs[parseInt(activeTabId.split("tab")[1]) - 1]}/>
+            <div className='tabContainer flex'> {tabList} </div>
+            <Canvas setShowResult={setShowResult} panel={tabs[parseInt(activeTabId.split("tab")[1]) - 1]}/>
             </div>
+            <SpecInfos/>
+            </>
             )
         }
         

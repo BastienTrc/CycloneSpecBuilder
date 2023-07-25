@@ -14,8 +14,8 @@ export const networkOptions = {
     manipulation: {
         enabled: false,
         addNode: function(nodeData,callback) {
-            nodeData.label = getNodeContent()+counter++;
-            nodeData.id = getNodeContent()+counter
+            nodeData.label = getNodeContent();
+            nodeData.id = getNodeContent()+counter++
             callback(nodeData);
             getNetwork().addNodeMode(); // Allow several add of nodes
         },
@@ -36,6 +36,12 @@ export const networkOptions = {
             nodeData.label = getNodeContent();
             callback(nodeData);
         },
+        editEdge: {
+            editWithoutDrag: function(edgeData,callback) {
+                edgeData.label = getNodeContent();
+                callback(edgeData);
+        },
+    },
         
     },
     height: "90%",
