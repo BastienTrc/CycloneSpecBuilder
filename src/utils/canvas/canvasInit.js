@@ -121,7 +121,7 @@ function initKeyEvents(){
         }
         switch (event.key) {
             case "Escape":      // Cancel addNode action by pressing 'Escape'
-            cancelAction();
+                cancelAction();
             break;
             case "Backspace":   // Delete node by pressing 'backspace'
             // Make sure something was selected
@@ -148,6 +148,12 @@ function initKeyEvents(){
             break;
             default:
             break;
+        }
+    }))
+
+    document.getElementById("blockListContainer")?.addEventListener('keydown', (event => {
+        if (event.key === 'Escape'){
+            cancelAction();
         }
     }))
     

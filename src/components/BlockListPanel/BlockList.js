@@ -48,7 +48,7 @@ const BlockList = () => {
 
   
   return (
-    <div className='blockListContainer bordered spaced'>
+    <div id="blockListContainer" className='blockListContainer bordered spaced'>
     <div className='blockListTitle'> BlockListPanel </div>
     <div className='fullSeparator'/>
     <div className='blockList'>

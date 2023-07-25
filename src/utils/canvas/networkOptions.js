@@ -14,8 +14,10 @@ export const networkOptions = {
     manipulation: {
         enabled: false,
         addNode: function(nodeData,callback) {
-            nodeData.label = getNodeContent();
-            nodeData.id = getNodeContent()+counter++
+            let content = getNodeContent();
+            nodeData.id = content+counter++;
+            nodeData.label = content+counter;
+            nodeData.group = content;
             callback(nodeData);
             getNetwork().addNodeMode(); // Allow several add of nodes
         },
@@ -63,6 +65,10 @@ export const networkOptions = {
         multiselect: true,
         navigationButtons: true
     },
+    groups: {
+        StartNode: {color:{border:'green'}, borderWidth:2},
+        EndNode: {color:{border:'red'}, borderWidth:2},
+      },
     //TODO Remove seed, just for example
     layout:{
         randomSeed: "0.689730575122681:1689865843039"

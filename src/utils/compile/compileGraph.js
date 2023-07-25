@@ -12,7 +12,7 @@ export function compileGraph(network){
     let infos = getSpecInfos();
 
     // Start spec
-    compileStart(infos.title, infos.variables);
+    compileStart(infos);
     
     // States
     let nodeSet = network.body.data.nodes;
@@ -34,9 +34,17 @@ export function compileGraph(network){
     compileGoal(infos.goal);
 }
 
-function compileStart(title, variables){
-    output = `machine ${title}{\n`;
-    output += variables + "\n\n";
+function compileStart(infos){
+    output = "";
+    if (infos.trace){
+        output += "option-trace = true;\n"
+        output +=  infos.traceExtension ? "option-output = " + infos.traceExtension +";\n" : "";
+    }
+    
+    output +=  infos.debug ? "option-debug = true;\n" : "";
+    
+    output += `machine ${infos.title}{\n`;
+    output += infos.variables + "\n\n";
 }
 
 function compileNode(node){
