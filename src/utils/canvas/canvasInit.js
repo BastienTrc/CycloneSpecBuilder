@@ -2,8 +2,9 @@ import { Network } from "vis-network/standalone";
 import { DataSet } from "vis-data/standalone"
 import { switchNodeContent, createSwitchButton } from "./canvasUtils";
 import { compileGraph } from "../compile/compileGraph";
+import { getData } from "../../components/ResultPanel/ResultPanel";
 const deleteIcon = require('@mui/icons-material/Delete');
-const {networkOptions, nodeFont} =  require("./networkOptions");
+const {networkOptions, nodeFont, resetCounter} =  require("./networkOptions");
 const compileImg = require('../../resources/compile.png');
 const clearImg = require('../../resources/clear.png');
 
@@ -53,25 +54,6 @@ export function initCanvas(setOpen, setContent, setShowResult){
         hasBeenInit = false; // Once we show result, canvas will disappear and won't be loaded.
         setShowResult(value)
     }
-
-    // create an array with nodes
-    var nodes = new DataSet([
-        { id: "StartNode-1", label: "Start", font:nodeFont, code:"int a = 5;"},
-        { id: "Node-2", label: "firstStep", font:nodeFont, code:""},
-        { id: "EndNode-3", label: "firstStop", font:nodeFont, code:"int c = b + 3;"},
-        { id: "EndNode-4", label: "secondStop", font:nodeFont, code:""},
-        { id: "Node-5", label: "secondStep", font:nodeFont, code:"int res; a < b => (res == 0);"},
-    ]);
-    
-    // create an array with edges
-    // @ts-ignore Error checking problem with vis-network
-    var edges = new DataSet([
-        { from: "StartNode-1", to: "EndNode-3"},
-        { from: "StartNode-1", to: "Node-2" },
-        { from: "Node-2", to: "EndNode-4", label: "x > 0 && a < b" },
-        { from: "Node-2", to: "Node-5", label: "x >= 0 || a == b"},
-        { from: "Node-5", to: "EndNode-4", label: "canEnd == true"},
-    ]);
     
     // create a container for the network
     var container = document.getElementById("canvasContainer");
@@ -79,10 +61,13 @@ export function initCanvas(setOpen, setContent, setShowResult){
         return; //TODO Better handling
     }
     
-    var data = {
-        nodes: nodes,
-        edges: edges,
-    };
+    var data = getData();
+    // debugger
+    if (data === undefined || data.nodes === undefined){
+        data = generateData()
+    }
+    data.nodes = new DataSet(data.nodes);
+    data.edges = new DataSet(data.edges);
     
     // @ts-ignore Error checking problem with vis-network
     network = new Network(container, data, networkOptions);
@@ -90,6 +75,31 @@ export function initCanvas(setOpen, setContent, setShowResult){
     initNetworkEvents(network);
     initKeyEvents();
     initCanvasHeader();
+}
+
+function generateData(){
+    // create an array with nodes
+    var nodes = [
+        { id: "StartNormal1", label: "Start", font:nodeFont, code:"int a = 5;", group:"StartNormal"},
+        { id: "Normal2", label: "firstStep", font:nodeFont, code:"", group:"Normal"},
+        { id: "NormalFinal3", label: "firstStop", font:nodeFont, code:"int c = b + 3;", group:"NormalFinal"},
+        { id: "NormalFinal4", label: "secondStop", font:nodeFont, code:"", group:"NormalFinal"},
+        { id: "Normal5", label: "secondStep", font:nodeFont, code:"int res; a < b => (res == 0);", group:"Normal"},
+    ];
+    
+    // create an array with edges
+    // @ts-ignore Error checking problem with vis-network
+    var edges = [
+        { from: "StartNormal1", to: "NormalFinal3"},
+        { from: "StartNormal1", to: "Normal2" },
+        { from: "Normal2", to: "NormalFinal4", label: "x > 0 && a < b" },
+        { from: "Normal2", to: "Normal5", label: "x >= 0 || a == b"},
+        { from: "Normal5", to: "NormalFinal4", label: "canEnd == true"},
+    ];
+    return {
+        nodes: nodes,
+        edges: edges,
+    };
 }
 
 function initNetworkEvents(network){
@@ -121,7 +131,7 @@ function initKeyEvents(){
         }
         switch (event.key) {
             case "Escape":      // Cancel addNode action by pressing 'Escape'
-                cancelAction();
+            cancelAction();
             break;
             case "Backspace":   // Delete node by pressing 'backspace'
             // Make sure something was selected
@@ -150,7 +160,7 @@ function initKeyEvents(){
             break;
         }
     }))
-
+    
     document.getElementById("blockListContainer")?.addEventListener('keydown', (event => {
         if (event.key === 'Escape'){
             cancelAction();
@@ -325,7 +335,9 @@ function compileCanvas(){
 }
 
 function clearCanvas(){
-    console.log("I will clear");
+    cancelAction();
+    network.setData({});
+    resetCounter();
 }
 
 export function getNetwork(){

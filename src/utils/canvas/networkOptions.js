@@ -1,10 +1,10 @@
 import { getNetwork, getNodeContent } from "./canvasInit";
 
-var counter = 1;
+var counter = 0;
 
 // Node layout options
 export const nodeFont = {
-    size: 10,
+    size: 12,
     face: "arial",
     color: "black"
 }
@@ -18,6 +18,7 @@ export const networkOptions = {
             nodeData.id = content+counter++;
             nodeData.label = content+counter;
             nodeData.group = content;
+            nodeData.code = "";
             callback(nodeData);
             getNetwork().addNodeMode(); // Allow several add of nodes
         },
@@ -42,8 +43,8 @@ export const networkOptions = {
             editWithoutDrag: function(edgeData,callback) {
                 edgeData.label = getNodeContent();
                 callback(edgeData);
+            },
         },
-    },
         
     },
     height: "90%",
@@ -65,12 +66,28 @@ export const networkOptions = {
         multiselect: true,
         navigationButtons: true
     },
+    nodes: {
+        shape: "box"
+    },
     groups: {
-        StartNode: {color:{border:'green'}, borderWidth:2},
-        EndNode: {color:{border:'red'}, borderWidth:2},
-      },
+        // By default, a node i abstract
+        Abstract: {color:{background:'white', border:'black', highlight:{background:"white"}}, shapeProperties: { borderDashes: [5,2]}, shape:"box" },
+        Start: {color:{background:'lightgreen', border:'black', highlight:{background:"lightgreen"}}, shapeProperties: {borderDashes: [5,2]}, shape:"box"},
+        Final: {color:{background:'lightcoral', border:'black', highlight:{background:"lightcoral"}}, shapeProperties: {borderDashes: [5,2]}, shape:"box"},
+        StartFinal: {color:{background:'lightblue', border:'black', highlight:{background:"lightblue"}}, shapeProperties: {borderDashes: [5,2]}, shape:"box"},
+        
+        Normal: {color:{background:'white', border:'black', highlight:{background:"white"}}},
+        StartNormal: {color:{background:'lightgreen', border:'black', highlight:{background:"lightgreen"}}},
+        NormalFinal: {color:{background:'lightcoral', border:'black', highlight:{background:"lightcoral"}}},
+        StartNormalFinal: {color:{background:'lightblue', border:'black', highlight:{background:"lightblue"}}},
+        
+    },
     //TODO Remove seed, just for example
     layout:{
         randomSeed: "0.689730575122681:1689865843039"
     }
-};
+}
+
+export function resetCounter(){
+    counter = 0;
+}

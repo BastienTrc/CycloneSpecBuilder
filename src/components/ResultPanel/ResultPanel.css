@@ -2,6 +2,10 @@
     padding: 2px;
 }
 
+#codeContainer{
+    tab-size: 5;
+}
+
 .resultButton{ 
     border: 1.5px solid black;
     border-radius: 4px;

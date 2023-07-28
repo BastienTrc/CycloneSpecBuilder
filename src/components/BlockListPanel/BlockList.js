@@ -2,8 +2,7 @@ import './BlockList.css'
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { cancelAction, getNetwork, setAddNodeMode, setCanvasInfo, setNodeContent, switchEdgeMode} from '../../utils/canvas/canvasInit';
-import StartNode from './Blocks/StartNode';
-import FinalNode from './Blocks/FinalNode';
+import Nodes from './Blocks/Nodes';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 
 
@@ -37,13 +36,18 @@ function addNode(id){
 const BlockList = () => {
   // TODO Generate dynamically after
   const [blocks,setBlocks] = useState([
-    {  id: "StartNode" },
-    {  id: "Node" },
-    {  id: "EndNode" }
+    {  id: "StartNormal" },
+    {  id: "Normal" },
+    {  id: "NormalFinal" },
+    {  id: "StartNormalFinal" },
+    {  id: "Start" },
+    {  id: "Abstract" },
+    {  id: "Final" },
+    {  id: "StartFinal" },
   ]);
   
   var blockList = blocks.map(block =>{
-    return <StartNode id={block.id} setNodeContent={addNode}/>
+    return <Nodes id={block.id} setNodeContent={addNode}/>
   });
 
   
@@ -52,14 +56,14 @@ const BlockList = () => {
     <div className='blockListTitle'> BlockListPanel </div>
     <div className='fullSeparator'/>
     <div className='blockList'>
-      {blockList}
      
-        <button onClick={switchEdgeMode} className='libraryNode' id='EdgeNode'>
+        <button onClick={switchEdgeMode} className='libraryNode Normal' id='EdgeNode'>
           <ArrowRightAltIcon fontSize='large'/>
         </button>
+      {blockList}
     </div>
     </div>
     );
   }
 
-  export default BlockList;
+export default BlockList
