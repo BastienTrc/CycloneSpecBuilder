@@ -1,5 +1,6 @@
 import { Network } from "vis-network";
 import { getSpecInfos } from "../../components/EditPanel/SpecInfos";
+import { formatSemicolonBreakline } from "./parseUtils";
 
 var output = "";
 
@@ -12,7 +13,7 @@ export function compileGraph(network){
 
     // Start spec
     compileStart(infos);
-    
+    debugger;
     // States
     let nodeSet = network.body.data.nodes;
     let nodeIndices = network.body.nodeIndices;
@@ -47,7 +48,7 @@ function compileStart(infos){
     output +=  infos.debug ? "option-debug = true;\n" : "";
     
     output += `machine ${infos.title}{\n`;
-    output += infos.variables + "\n\n";
+    output += formatSemicolonBreakline(infos.variables, 1) + "\n\n";
 }
 
 /**
@@ -59,17 +60,9 @@ function compileNode(node){
     let isFinalNode = node.id.includes("Final");
     let isNormalNode = node.id.includes("Normal");
 
-    // Build state.
-    let codeLines = node.code.split("\n");
-    for (let i = 0; i < codeLines.length ; i++) {
-        // If user forgot to add ';' at end of line, add it for him
-        if (!/^\s*$/.test(codeLines[i]) && codeLines[i].slice(-1) !== ";"){
-            codeLines[i] = codeLines[i].trim()+";"
-        }
-    }; 
-    codeLines = codeLines.join(`\n\t\t`)
+    let codeLines = formatSemicolonBreakline(node.code, 2);
 
-    output +=`\t${isStartNode ? "start " : ""}${isNormalNode ? "normal " : "abstract "}${isFinalNode ? "final " : ""}state ${node.label} {\n\t\t${node.code ? codeLines : ""}\n\t}\n\n`;
+    output +=`\t${isStartNode ? "start " : ""}${isNormalNode ? "normal " : "abstract "}${isFinalNode ? "final " : ""}state ${node.label} {\n${node.code ? codeLines : ""}\n\t}\n\n`;
 }
 
 /**
@@ -90,7 +83,7 @@ function compileEdge(edge, nodeSet){
  */
 function compileGoal(goalCondition){
     output +=
-    `\n\tgoal{\t\t${goalCondition}\n\t}\n}`
+    `\n\tgoal{\n${formatSemicolonBreakline(goalCondition, 2)}\n\t}\n}`
 }
 
 /**

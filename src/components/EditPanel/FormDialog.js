@@ -18,6 +18,8 @@ export default function FormDialog({open, setOpen, content}) {
     }
 }))
 
+const [isFormValid, setIsFormValid] = React.useState(false);
+
 // Close the dialog
   function handleClose(){
     setOpen(false);
@@ -71,6 +73,9 @@ export default function FormDialog({open, setOpen, content}) {
             fullWidth
             variant="standard"
             multiline={true}
+            error={isFormValid}
+            onChange={(event) => setIsFormValid(event.target.value.includes(" "))}
+            helperText="Node/State label can't contain whitespace"
           />
         </DialogContent>
         <DialogActions>

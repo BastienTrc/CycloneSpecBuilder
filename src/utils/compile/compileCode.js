@@ -1,42 +1,61 @@
 import { Network } from "vis-network";
 import { getNodeContent } from "../canvas/canvasInit";
+import { setSpecInfos } from "../../components/EditPanel/SpecInfos";
+import { formatSemicolonBreakline } from "./parseUtils";
 
 // Captures the name and code inside a node
 // const nodeRegex = /(?:start\s+)?(?:abstract\s+)?(?:normal\s+)?(?:final\s+)?.*\s+state\s+(.*)\s*{(\s*(?:\s*.*;\s*)*)}/g
-const nodeRegex = /(start )?(?:abstract )?(normal )?(final )?state (.*?) ?{(.*?)}/g // Using greedy operator e.g. '*?'
-const transRegex = /trans {(.*?) ?(?:where (.*? ?;?))?}/g // Added '?' next to ; if user forgot semicolon (Should be stable)
-const goalRegex = /goal\s*{\s+((?:.*\s*)*)}\s*}/g
-const machineRegex = /machine\s+(.*)\s*{/g
-const variablesRegex = /machine\s+.*\s*{\s+((?:.*;\s+)*)/g
+const nodeRegex = /(start )?(?:abstract )?(normal )?(final )?state (.*?) ?{\s*((?:.*?\s*)*?)}/g // Using greedy operator e.g. '*?'
+const transRegex = /trans {\s*(.*?) ?(?:where (.*? ?;?))?\s*}/g // Added '?' next to ; if user forgot semicolon (Should be stable)
+const goalRegex = /goal\s*{\s*((?:.*\s?)*)}\s*}/
+const machineRegex = /machine (.*?) ?{/
+const variablesTempRegex = /(?:(?:start )?(?:abstract )?(?:normal )?(?:final )?state) .* ?/ // Match everything between the title and the first state declaration
+const variablesRegex = /machine .*? ?{\s*((?:.+\s?)*)/ // Match everything between the title and the first state declaration
 
 var nodes;
 var labelToIdDict;
 var edges;
 var counter = 0;
+var infos = {title:"", variables:"", goal:"", traceWanted:false, extensionForm: "", debug:false}
 
 /**
  * Compile the code into data for VisNetwork
- * @param {String} output The spec code
+ * @param {String} input The spec code
  * @returns The data object (contains nodes and edges property)
  */
-export function compileCode(output){
-    // Remove breaklines and multiples whitespaces for better parsing. So there is at least 1 space at a time
-    output = output.replaceAll("\n","");
-    output = output.replace(/\s+/g,' ')
-   
+export function compileCode(input){
     nodes = [];
     labelToIdDict = {};
     edges = [];
-    let nodeIterator = output.matchAll(nodeRegex);
+    debugger;
+    let nodeIterator = input.matchAll(nodeRegex);
     createNodes(nodeIterator)
-    let edgesIterator = output.matchAll(transRegex);
+    let edgesIterator = input.matchAll(transRegex);
     createEdges(edgesIterator)
-    // let goal = output.matchAll(goalRegex);
-    // console.log("3"+goal)
-    // let machine = output.matchAll(machineRegex);
-    // console.log("4"+machine)
-    // let variables = output.matchAll(variablesRegex);
-    // console.log("5"+variables)
+    let goal = input.match(goalRegex);
+    if (!goal?.length || goal?.length < 2 || goal?.[1] === undefined){
+        alert("Couldn't find goal section");
+        return;
+    }
+    createGoal(goal?.[1])
+    let machineTitle = input.match(machineRegex);
+    createTitle(machineTitle?.[1])
+    if (!machineTitle?.length || machineTitle?.length < 2 || machineTitle?.[1] === undefined){
+        alert("Couldn't parse machine title");
+        return;
+    }
+    let varTemp = input.match(variablesTempRegex);
+    if (!varTemp){
+        return
+    }
+    let varPart = input.split(varTemp[0])[0]
+    let variables = varPart.match(variablesRegex);
+    createVariables(variables?.[1]);
+
+    infos.traceWanted = /option-trace ?= ?true/.test(input);
+    infos.extensionForm = input.match(/option-output ?= ?(.*);/)?.[1];
+    infos.debug = /option-debug ?= ?true/.test(input);
+    setSpecInfos(infos);
     return {
         nodes: nodes,
         edges: edges
@@ -75,7 +94,7 @@ function createNodes(nodesIterator){
         labelToIdDict[match[4]] = createdNode.id;
         createdNode.label = match[4];
         // Add breakline at each instruction and remove \n at the end
-        createdNode.code = match[5].split(";").join(";\n").slice(0, -2);
+        createdNode.code = formatSemicolonBreakline(match[5], 0);
         
         nodes.push(createdNode)
         currentNode = nodesIterator.next();
@@ -127,6 +146,18 @@ function createEdges(edgesIterator){
         edges.push(createdEdge);
         currentEdge = edgesIterator.next()
     }
+}
+
+function createGoal(goal){
+    infos.goal = formatSemicolonBreakline(goal, 0);
+}
+
+function createTitle(title){
+    infos.title = title
+}
+
+function createVariables(variables){
+    infos.variables = formatSemicolonBreakline(variables, 0);
 }
 
 /**

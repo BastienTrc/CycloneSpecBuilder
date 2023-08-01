@@ -8,13 +8,10 @@ var init = false;
 
 function ResultPanel ({setShowResult}) {
     
-    const [specCode, setSpecCode] = useState('');
+    const [specCode, setSpecCode] = useState('');   
     
     function backToGraph(){
         data = compileCode(document.getElementById('codeContainer')?.value)
-        if (data.nodes === 0 || data.edges === 0){
-            return;
-        }
         // Will allow useEffect on next display of the page
         init = false;
         setShowResult(false);
@@ -27,7 +24,10 @@ function ResultPanel ({setShowResult}) {
             init = true;
             // Enable tab input in textareas
             var textarea = document.getElementById('codeContainer');
-            textarea?.addEventListener("keydown", (e) => {
+            if (textarea === null){
+                return;
+            }
+            textarea.addEventListener("keydown", (e) => {
                 if(e.key === "Tab"){
                     e.preventDefault();
                     if (!e.repeat){
