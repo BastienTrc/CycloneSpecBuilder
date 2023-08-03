@@ -7,10 +7,13 @@ This project aims to help the user create cyclone specifications by graphically 
 ### Dependencies
 To download all required dependencies, open a terminal, go into source file (`CycloneSpecBuilder/`) and type `npm install`.
 
+Then go to `/api` and type `pip install -r requirements.txt` and `cd ..` to go back to source file.
+
 ### Running the server
 
-Once all dependencies are installed, type `npm start` in your terminal. This will run the app in the development mode.
-Once the server started, open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Once all dependencies are installed, type `npm start` in your terminal at source file. This will run the app in the development mode.  
+Open another terminal (still at source file location) and type `npm run start-api`.  
+Once the server started, open [http://localhost:3000](http://localhost:3000) to view it in your browser. 
 
 ### Shutting down
 
