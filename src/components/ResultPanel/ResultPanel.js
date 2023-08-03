@@ -2,19 +2,47 @@ import { compileCode } from '../../utils/compile/compileCode';
 import { initCompile } from '../../utils/compile/compileGraph';
 import './ResultPanel.css';
 import React, { useState, useEffect } from 'react';
+import { loadSpec, saveSpec } from '../../utils/compile/saveLoad';
+import axios from 'axios';
 
 var data;
 var init = false;
+const machineRegex = /(?:machine|graph) (.*?) *{/
 
 function ResultPanel ({setShowResult}) {
     
     const [specCode, setSpecCode] = useState('');   
+    const [terminalContent, setTerminalContent] = useState('');   
     
     function backToGraph(){
         data = compileCode(document.getElementById('codeContainer')?.value)
         // Will allow useEffect on next display of the page
         init = false;
         setShowResult(false);
+    }
+    
+    async function compileSpec(){
+        setTerminalContent("Specification is being checked...")
+        await axios({
+            method: "POST",
+            url:"/compileCode", 
+            data: {
+                specCode : document.getElementById('codeContainer')?.value
+            }
+        })
+        .then((response) => {
+            setTerminalContent(response.data.terminal)
+        }).catch((error) => {
+            if (error.response) {
+                console.log(error.response)
+            }
+            setTerminalContent(error.response.data)
+        })
+    }
+
+    async function stopSpec(){
+        setTerminalContent("Not yet implemented")
+       
     }
     
     useEffect( () => {
@@ -41,6 +69,11 @@ function ResultPanel ({setShowResult}) {
         }
     },[])
     
+    function initSaveSpec(){
+        let title = specCode.match(machineRegex)?.[1];
+        saveSpec(specCode, title)
+    }
+    
     return (
         <div className='resultPanel flex grow'>
         {/* <div className='sideContainer flexC bordered spaced'>tabContainer</div> */}
@@ -48,13 +81,13 @@ function ResultPanel ({setShowResult}) {
         <div className='sideContainer flexC grow bordered spaced'> 
         <div className='buttonContainer flex evenly spaced'>
         <button className='resultButton backBtn' onClick={() => backToGraph()}> Back to graph</button>
-        <button className='resultButton' disabled={true}> Run </button> 
-        <button className='resultButton' disabled={true}> Stop </button> 
-        <button className='resultButton' disabled={true}> Save</button>
-        <button className='resultButton' disabled={true}> Upload</button>
+        <button className='resultButton' onClick={(event) => compileSpec()}> Run </button> 
+        <button className='resultButton' onClick={(event) => stopSpec()}> Stop </button> 
+        <button className='resultButton' onClick={() => initSaveSpec()}> Save</button>
+        <button className='resultButton' onClick={() => loadSpec(setSpecCode)}> Upload</button>
         </div>
         <div className='fullSeparator'/>
-        <pre className='terminal'> Terminal ?</pre>
+        <textarea readOnly className='terminal grow' defaultValue={terminalContent}/>
         </div>
         </div>
         )

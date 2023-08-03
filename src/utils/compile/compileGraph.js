@@ -13,7 +13,6 @@ export function compileGraph(network){
 
     // Start spec
     compileStart(infos);
-    debugger;
     // States
     let nodeSet = network.body.data.nodes;
     let nodeIndices = network.body.nodeIndices;
@@ -42,7 +41,7 @@ function compileStart(infos){
     output = "";
     if (infos.trace){
         output += "option-trace = true;\n"
-        output +=  infos.traceExtension ? "option-output = " + infos.traceExtension +";\n" : "";
+        output +=  infos.traceExtension ? 'option-output = "' + infos.traceExtension +'";\n' : "";
     }
     
     output +=  infos.debug ? "option-debug = true;\n" : "";
@@ -62,7 +61,7 @@ function compileNode(node){
 
     let codeLines = formatSemicolonBreakline(node.code, 2);
 
-    output +=`\t${isStartNode ? "start " : ""}${isNormalNode ? "normal " : "abstract "}${isFinalNode ? "final " : ""}state ${node.label} {\n${node.code ? codeLines : ""}\n\t}\n\n`;
+    output +=`\t${isNormalNode ? "" : "abstract "}${isStartNode ? "start " : ""}${isNormalNode ? "normal " : ""}${isFinalNode ? "final " : ""}state ${node.label} {\n${node.code ? codeLines : ""}\n\t}\n\n`;
 }
 
 /**

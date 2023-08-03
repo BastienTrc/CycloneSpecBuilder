@@ -13,7 +13,7 @@ function addBreaklines(value){
     let lines = value.split(";")
     for (let i = 0; i < lines.length; i++) {
         lines[i] = lines[i].trim();
-        if (!/^\s*$/.test(lines[i]) && lines[i].slice(-1) !== "\n"){
+        if (!/^\s*$/.test(lines[i]) && lines[i].slice(-1) !== "\n" ){
             lines[i] +=";\n";
         }
     };
@@ -39,12 +39,18 @@ function addSemicolons(content){
     return lines.join("\n").slice(0, -1);
 }
 
+/**
+ * 
+ * @param {String} content the string to indent
+ * @param {Number} tabNumber number of indent
+ * @returns {String}
+ */
 function addTab(content, tabNumber){
     let lines = content.split("\n");
     for (let i = 0; i < lines.length; i++){
         lines[i] = "\t".repeat(tabNumber) + lines[i];
     }
-    return lines.join("\n").slice(0, -1);
+    return lines.join("\n");
 }
 
 /**
@@ -53,5 +59,14 @@ function addTab(content, tabNumber){
  * @returns The content on whiched addBreaklines and addSemicolons was called
  */
 export function formatSemicolonBreakline(content, tabNumber){
-    return addTab(addBreaklines(addSemicolons(content)),tabNumber);
+    let lines = content.split("\n");
+    // If user forgot to add ';' at end of line, add it for him
+    for (let i = 0; i < lines.length; i++) {
+        lines[i] = lines[i].trim();
+    };
+    
+    content = lines.join("\n")
+
+    return addTab(content,tabNumber)?.trim();
+    // return addTab(addBreaklines(addSemicolons(content)),tabNumber); Not yet found a nice helper
 }

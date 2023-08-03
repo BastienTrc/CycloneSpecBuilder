@@ -1,9 +1,16 @@
 .resultPanel{
     padding: 2px;
+    width: 100%;
 }
 
 #codeContainer{
     tab-size: 5;
+    width: 50%;
+    resize: none;
+}
+
+.sideContainer{
+    width: 50%;
 }
 
 .resultButton{ 
@@ -25,4 +32,10 @@
 
 .terminal{
     cursor: not-allowed;
+    resize: none;
+    border: none;
+}
+
+.button.active{
+    background-color: forestgreen;
 }

@@ -15,7 +15,7 @@ export const networkOptions = {
         enabled: false,
         addNode: function(nodeData,callback) {
             let content = getNodeContent();
-            nodeData.id = content+counter++;
+            nodeData.id = content+(++counter);
             nodeData.label = content+counter;
             nodeData.group = content;
             nodeData.code = "";
@@ -88,6 +88,6 @@ export const networkOptions = {
     }
 }
 
-export function resetCounter(){
-    counter = 0;
+export function setNetworkCounter(number){
+    counter = number;
 }

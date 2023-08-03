@@ -1,11 +1,9 @@
 .footerContainer{
-  background-color: #282c34;
-  min-height: 10vh;
+  height: 7vh;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-evenly;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: center;
   margin-bottom: 5px;
+  gap: 10px;
 }

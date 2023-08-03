@@ -1,16 +1,15 @@
 import { Network } from "vis-network";
-import { getNodeContent } from "../canvas/canvasInit";
 import { setSpecInfos } from "../../components/EditPanel/SpecInfos";
 import { formatSemicolonBreakline } from "./parseUtils";
+import { setNetworkCounter } from "../canvas/networkOptions";
 
 // Captures the name and code inside a node
-// const nodeRegex = /(?:start\s+)?(?:abstract\s+)?(?:normal\s+)?(?:final\s+)?.*\s+state\s+(.*)\s*{(\s*(?:\s*.*;\s*)*)}/g
-const nodeRegex = /(start )?(?:abstract )?(normal )?(final )?state (.*?) ?{\s*((?:.*?\s*)*?)}/g // Using greedy operator e.g. '*?'
-const transRegex = /trans {\s*(.*?) ?(?:where (.*? ?;?))?\s*}/g // Added '?' next to ; if user forgot semicolon (Should be stable)
+const nodeRegex = /(?:abstract )?(start )?(normal )?(final )?(?:state|node) (.*?) ?{\s*((?:.*?\s*)*?)}/g // Using greedy operator e.g. '*?'
+const transRegex = /(?:trans|edge) {\s*(.*?) ?(?:where (.*? ?;?))?\s*}/g // Added '?' next to ; if user forgot semicolon (Should be stable)
 const goalRegex = /goal\s*{\s*((?:.*\s?)*)}\s*}/
-const machineRegex = /machine (.*?) ?{/
-const variablesTempRegex = /(?:(?:start )?(?:abstract )?(?:normal )?(?:final )?state) .* ?/ // Match everything between the title and the first state declaration
-const variablesRegex = /machine .*? ?{\s*((?:.+\s?)*)/ // Match everything between the title and the first state declaration
+const machineRegex = /(?:machine|graph) (.*?) *{/
+const variablesTempRegex = /((?:abstract )?(?:start )?(?:normal )?(?:final )?(?:state|node) .* ?)/ // Match beginning of state/node declaration
+const variablesRegex = /(?:machine|graph) .*? ?{\s*((?:.+\s*)*)/ // Match everything between the title and the first state declaration
 
 var nodes;
 var labelToIdDict;
@@ -27,7 +26,13 @@ export function compileCode(input){
     nodes = [];
     labelToIdDict = {};
     edges = [];
-    debugger;
+    counter = 0;
+    // Remove everything between /* and */
+    input = input.replace(/\/\*(?:.|\s)*?\*\//g, '');
+    // Remove everything after //
+    input = input.replace(/\/\/.*\s/g, '\n');
+    console.log(input)
+    
     let nodeIterator = input.matchAll(nodeRegex);
     createNodes(nodeIterator)
     let edgesIterator = input.matchAll(transRegex);
@@ -55,7 +60,9 @@ export function compileCode(input){
     infos.traceWanted = /option-trace ?= ?true/.test(input);
     infos.extensionForm = input.match(/option-output ?= ?(.*);/)?.[1];
     infos.debug = /option-debug ?= ?true/.test(input);
+
     setSpecInfos(infos);
+    setNetworkCounter(counter);
     return {
         nodes: nodes,
         edges: edges
@@ -147,15 +154,24 @@ function createEdges(edgesIterator){
         currentEdge = edgesIterator.next()
     }
 }
-
+/**
+ * 
+ * @param {String} goal 
+ */
 function createGoal(goal){
     infos.goal = formatSemicolonBreakline(goal, 0);
 }
-
+/**
+ * 
+ * @param {String} title 
+ */
 function createTitle(title){
-    infos.title = title
+    infos.title = title?.trim();
 }
-
+/**
+ * 
+ * @param {String} variables 
+ */
 function createVariables(variables){
     infos.variables = formatSemicolonBreakline(variables, 0);
 }

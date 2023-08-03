@@ -10,4 +10,6 @@
 .infosContainer{  
     padding: 5px;
     gap: 10px;
+    overflow-y: scroll;
+    flex-grow: 1;
 }

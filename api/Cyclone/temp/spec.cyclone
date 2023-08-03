@@ -1,0 +1,101 @@
+option-trace = true;
+machine DefuseBomb{
+int jug1 where jug1>=0 && jug1<=3;
+	int jug2 where jug2>=0 && jug2<=5;
+	
+	
+	int amount where amount>=0 && amount<=3;
+
+	start normal state Start {
+jug1=0;
+		jug2=0;
+		amount=0;
+	}
+
+	normal state Jug2ToJug1 {
+fresh(amount);
+		
+		
+		(jug1+jug2>3) => (amount==3-jug1);
+		(jug1+jug2<=3) => (amount==jug2);
+		
+		jug2=jug2 - amount;
+		jug1=jug1 + amount;
+	}
+
+	normal state Jug1ToJug2 {
+fresh(amount);
+		
+		
+		(jug1+jug2>5) => (amount==5-jug2);
+		(jug1+jug2<=5) => (amount==jug1);
+		
+		jug1=jug1 - amount;
+		jug2=jug2 + amount;
+	}
+
+	normal state EmptyJug1 {
+jug1 = 0;
+	}
+
+	normal state EmptyJug2 {
+jug2 = 0;
+	}
+
+	normal state FillJug1 {
+jug1 = 3;
+	}
+
+	normal state FillJug2 {
+jug2 = 5;
+	}
+
+
+	trans { Start -> Jug2ToJug1 }
+	trans { Start -> Jug1ToJug2 }
+	trans { Start -> EmptyJug1 }
+	trans { Start -> EmptyJug2 }
+	trans { Start -> FillJug1 }
+	trans { Start -> FillJug2 }
+	trans { Jug2ToJug1 -> Start }
+	trans { Jug2ToJug1 -> Jug1ToJug2 }
+	trans { Jug2ToJug1 -> EmptyJug1 }
+	trans { Jug2ToJug1 -> EmptyJug2 }
+	trans { Jug2ToJug1 -> FillJug1 }
+	trans { Jug2ToJug1 -> FillJug2 }
+	trans { Jug1ToJug2 -> Start }
+	trans { Jug1ToJug2 -> Jug2ToJug1 }
+	trans { Jug1ToJug2 -> EmptyJug1 }
+	trans { Jug1ToJug2 -> EmptyJug2 }
+	trans { Jug1ToJug2 -> FillJug1 }
+	trans { Jug1ToJug2 -> FillJug2 }
+	trans { EmptyJug1 -> Start }
+	trans { EmptyJug1 -> Jug2ToJug1 }
+	trans { EmptyJug1 -> Jug1ToJug2 }
+	trans { EmptyJug1 -> EmptyJug2 }
+	trans { EmptyJug1 -> FillJug1 }
+	trans { EmptyJug1 -> FillJug2 }
+	trans { EmptyJug2 -> Start }
+	trans { EmptyJug2 -> Jug2ToJug1 }
+	trans { EmptyJug2 -> Jug1ToJug2 }
+	trans { EmptyJug2 -> EmptyJug1 }
+	trans { EmptyJug2 -> FillJug1 }
+	trans { EmptyJug2 -> FillJug2 }
+	trans { FillJug1 -> Start }
+	trans { FillJug1 -> Jug2ToJug1 }
+	trans { FillJug1 -> Jug1ToJug2 }
+	trans { FillJug1 -> EmptyJug1 }
+	trans { FillJug1 -> EmptyJug2 }
+	trans { FillJug1 -> FillJug2 }
+	trans { FillJug2 -> Start }
+	trans { FillJug2 -> Jug2ToJug1 }
+	trans { FillJug2 -> Jug1ToJug2 }
+	trans { FillJug2 -> EmptyJug1 }
+	trans { FillJug2 -> EmptyJug2 }
+	trans { FillJug2 -> FillJug1 }
+
+	goal{
+assert ( jug2==4 );
+		check for 2,3,4,5,6 reach (Jug1ToJug2,Jug2ToJug1,EmptyJug1,EmptyJug2,FillJug1,FillJug2)
+	}
+}

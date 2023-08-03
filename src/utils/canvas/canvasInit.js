@@ -3,10 +3,11 @@ import { DataSet } from "vis-data/standalone"
 import { switchNodeContent, createSwitchButton } from "./canvasUtils";
 import { compileGraph } from "../compile/compileGraph";
 import { getData } from "../../components/ResultPanel/ResultPanel";
+import compileImg from "../../resources/compile.png";
+import clearImg from "../../resources/clear.png";
 const deleteIcon = require('@mui/icons-material/Delete');
-const {networkOptions, nodeFont, resetCounter} =  require("./networkOptions");
-const compileImg = require('../../resources/compile.png');
-const clearImg = require('../../resources/clear.png');
+const {networkOptions, nodeFont, setNetworkCounter} =  require("./networkOptions");
+
 
 var network;
 
@@ -64,7 +65,8 @@ export function initCanvas(setOpen, setContent, setShowResult){
     var data = getData();
     // debugger
     if (data === undefined || data.nodes === undefined){
-        data = generateData()
+        data = {}
+        // data = generateData()
     }
     data.nodes = new DataSet(data.nodes);
     data.edges = new DataSet(data.edges);
@@ -337,7 +339,7 @@ function compileCanvas(){
 function clearCanvas(){
     cancelAction();
     network.setData({});
-    resetCounter();
+    setNetworkCounter(0);
 }
 
 export function getNetwork(){

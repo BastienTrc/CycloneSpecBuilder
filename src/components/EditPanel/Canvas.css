@@ -1,5 +1,5 @@
 .canvasContainer{
-    border: 1.5px solid orange;
+    border: 2px solid orange;
     border-radius: 4px;
     border-top-left-radius: 0px;
     border-top-left-radius: 0px;
@@ -7,7 +7,7 @@
     align-items: center;
     justify-content: end;
     
-    height: 76vh;
+    height: 77.2vh;
     width: 68vw;
 }
 
@@ -22,7 +22,7 @@
     display: flex;
     align-items: center;
     
-    border-bottom: 1.5px solid orange; 
+    border-bottom: 2px solid orange; 
 }
 
 /* Rounded sliders */
