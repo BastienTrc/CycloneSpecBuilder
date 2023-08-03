@@ -87,8 +87,8 @@ function compileGoal(goalCondition){
 
 /**
  * To be launched to display compiled code
- * @param {*} setCompiledCode the function that set the text in resultPanel
+ *  the function that set the text in resultPanel
  */
-export function initCompile(setCompiledCode){
-    setCompiledCode(output);
+export function getCompiledCode(){
+    return output;
 }
