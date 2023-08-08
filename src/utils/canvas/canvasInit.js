@@ -5,7 +5,6 @@ import { compileGraph } from "../compile/compileGraph";
 import { getData } from "../../components/ResultPanel/ResultPanel";
 import compileImg from "../../resources/compile.png";
 import clearImg from "../../resources/clear.png";
-const deleteIcon = require('@mui/icons-material/Delete');
 const {networkOptions, nodeFont, setNetworkCounter} =  require("./networkOptions");
 
 
@@ -38,13 +37,17 @@ var hasBeenInit;
 // Show result of compile
 var showResult;
 
+// Context Menu function
+var editMenuPos, editMenuVisible;
+var nodeID; // ID of the node to change type
+
 /**
 * Draw canvas with sample data and init every needed function
 * @param {*} setOpen 
 * @param {*} setContent 
 * @returns 
 */
-export function initCanvas(setOpen, setContent, setShowResult){
+export function initCanvas(setOpen, setContent, setShowResult, setMenuPos, setMenuVisible){
     if (hasBeenInit){
         return;
     }
@@ -55,6 +58,8 @@ export function initCanvas(setOpen, setContent, setShowResult){
         hasBeenInit = false; // Once we show result, canvas will disappear and won't be loaded.
         setShowResult(value)
     }
+    editMenuPos = setMenuPos;
+    editMenuVisible = setMenuVisible;
     
     // create a container for the network
     var container = document.getElementById("canvasContainer");
@@ -63,7 +68,6 @@ export function initCanvas(setOpen, setContent, setShowResult){
     }
     
     var data = getData();
-    // debugger
     if (data === undefined || data.nodes === undefined){
         data = {}
         // data = generateData()
@@ -111,6 +115,7 @@ function initNetworkEvents(network){
     
     // Add listener in delete mode, click an element to delete it
     network.on("click", function (params) {
+        editMenuVisible(false);
         if (deleteMode){
             if (network.getSelectedNodes().length === 0 && network.getSelectedEdges().length === 0){
                 return;
@@ -120,6 +125,17 @@ function initNetworkEvents(network){
             return
         }
         
+    });
+    network.on("oncontext", function (params) {
+        params.event.preventDefault();
+        nodeID = network.getNodeAt(params.pointer.DOM)
+        if (!nodeID){
+            return;
+        }
+        let DOMpos = network.canvasToDOM(network.getPosition(nodeID))
+        editMenuPos({x:DOMpos.x, y:DOMpos.y})
+        editMenuVisible(true)
+        network.unselectAll(); // Needed to avoid a bug when deleting several nodes successively. 
     });
 }
 
@@ -300,6 +316,7 @@ export function switchEdgeMode() {
 * @returns 
 */
 export function cancelAction() {
+    editMenuVisible(false);
     network.unselectAll();
     cancelAddNodeMode();
     
@@ -410,7 +427,57 @@ export function pushSwitchButtons(value){
     switchButtons.push(value);
 }
 
-//Debug function
-export function blabla(){
-    console.log(`${addNodeMode}///${deleteMode}///${edgeMode}`)
+export function editNodeType(value){
+    let makeStart = value.includes("Start") // Will we need to remove from another node
+    let makeStartEdge = makeStart; // Copy of previous to apply to all edges
+    let oldStartChangedId = "" // Id of the changed start node
+    let nodes = [];
+    let edges = [];
+    network.body.data.nodes.map((node) => {
+        let idNumber = nodeID.match(/\D*(\d+)/)[1]; // Retrieve numver of node
+        let pos = network.getPosition(node.id); // Retrieve actual position
+        node.x = pos.x;
+        node.y = pos.y;
+        
+        if (node.id === nodeID){ // Modify selected node
+            if (node.id.includes("Normal")){
+                value = value.replace("Abstract","Normal")
+            } else {
+                value = value.replace("Abstract","")
+            }
+            if (value === ""){
+                value = "Abstract";
+            }
+            node.group = value;
+            value = value+idNumber;
+            node.id = value;
+        } else if (makeStart && node.id.includes("Start")){
+            node.id = node.id.replace("Start", "");
+            if (/^\d+$/.test(node.id)){
+                node.id = "Abstract"+node.id
+            }
+            oldStartChangedId = node.id;
+            node.group = node.group.replace("Start", "")
+            if (node.group === ""){
+                node.group = "Abstract";
+            }
+            makeStart = false;
+        }
+        nodes.push(node);
+    });
+    
+    network.body.data.edges.map((edge) => {
+        if (edge.from === nodeID){
+            edge.from = value;
+        } else if (makeStartEdge && edge.from.includes("Start")){
+            edge.from = oldStartChangedId;           
+        }
+        if (edge.to === nodeID){
+            edge.to = value;
+        } else if (makeStartEdge && edge.to.includes("Start")){
+            edge.to = oldStartChangedId;           
+        }
+        edges.push(edge);
+    });
+    network.setData({nodes:new DataSet(nodes), edges:new DataSet(edges)})
 }

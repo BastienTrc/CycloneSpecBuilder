@@ -1,4 +1,3 @@
-import { Network } from "vis-network";
 import { setSpecInfos } from "../../components/EditPanel/SpecInfos";
 import { formatSemicolonBreakline } from "./parseUtils";
 import { setNetworkCounter } from "../canvas/networkOptions";

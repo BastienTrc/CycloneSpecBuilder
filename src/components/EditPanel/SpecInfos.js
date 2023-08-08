@@ -1,7 +1,6 @@
 import { Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import './SpecInfos.css'
 import React from 'react';
-import { Output } from '@mui/icons-material';
 
 var infos = {title:"", variables:"",  goal:"", traceWanted:false, extensionForm: "", debug:false}
 var goal = {properties:"", one:"", two:"", three:"", path:""}
