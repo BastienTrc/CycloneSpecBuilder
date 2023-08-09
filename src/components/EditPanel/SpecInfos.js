@@ -3,10 +3,11 @@ import './SpecInfos.css'
 import React from 'react';
 
 var infos = {title:"", variables:"",  goal:"", traceWanted:false, extensionForm: "", debug:false}
-var goal = {properties:"", one:"", two:"", three:"", path:""}
+var goal = {properties:"", one:"", two:"", three:"", path:"", reach:""}
 
-function SpecInfos() {
+function SpecInfos({reloadVar}) {
     const [traceWanted, setTraceWanted] = React.useState(false);
+    
     function editTraceWanted(value){
         infos.traceWanted = value;
         setTraceWanted(value);
@@ -26,7 +27,7 @@ function SpecInfos() {
         <div className='specInfosContainer flexC bordered spaced'>
         <div className='specInfosTitle'> Specification's Infos</div>
         <div className='fullSeparator'/>
-        <div id="infosContainer" className='infosContainer flexC'> 
+        <div id="infosContainer" className='infosContainer flexC' key={reloadVar}> 
         <TextField label="Graph name" variant="outlined" defaultValue={infos.title} onChange={(event) => infos.title = event.target.value}/>
         <TextField label="Variables" variant="outlined" multiline={true} defaultValue={infos.variables} onChange={(event) => infos.variables = event.target.value}/>
         <TextField label="Properties" variant="outlined" multiline={true} defaultValue={goal.properties} onChange={(event) => goal.properties = event.target.value}/>
@@ -66,6 +67,7 @@ function SpecInfos() {
         </div>
         <TextField label="State number" variant="outlined" multiline={true} defaultValue={goal.three} onChange={(event) => goal.three = event.target.value}/>
         <TextField label="Path (optional)" variant="outlined" multiline={true} defaultValue={goal.path} onChange={(event) => goal.path = event.target.value}/>
+        <TextField label="Reach (optional)" variant="outlined" multiline={true} defaultValue={goal.reach} onChange={(event) => goal.reach = event.target.value}/>
         <FormControlLabel control={<Checkbox id='traceForm' defaultChecked={infos.traceWanted}/>} label="Generate trace" onChange={(event) => editTraceWanted(event.target.checked)}/>
         {traceWanted ? 
         <FormControl>
@@ -95,7 +97,7 @@ export function getSpecInfos(){
     let res = {
         title: infos.title,
         variables:  infos.variables,
-        goal:  `${goal.properties}\n${goal.one} ${goal.two} ${goal.three} ${goal.path}`,
+        goal:  `${goal.properties}\n${goal.one} ${goal.two} ${goal.three} ${goal.path ? "condition"+goal.path : ""} reach ${goal.reach}`,
         trace: infos.traceWanted,
         traceExtension: infos.extensionForm,
         debug: infos.debug
@@ -104,14 +106,21 @@ export function getSpecInfos(){
 }
 
 export function setSpecInfos(content){
+    if (content === "" || !content){
+        infos = {title:"", variables:"",  goal:"", traceWanted:false, extensionForm: "", debug:false}
+        goal = {properties:"", one:"", two:"", three:"", path:"", reach:""}
+        return;
+    }
     infos = content;
-    let goalParsed = content.goal.match(/((?:(?:.|\s)*;\s*)*)(check|enumerate|upto|reach) \s*([^ ]*)\s*((?:.|\s)*)/);
-    if (goalParsed.length >= 5)
+    let goalParsed = content.goal.match(/((?:(?:.|\s)*;\s*)*)(check|enumerate|upto|reach) \s*([^ ]*)\s*([^ ]*)\s*(?:condition\s*([^ ]*))?\s*(?:reach\s*([^ ]*))?/);
     goal.properties = goalParsed[1]?.trim();
     goal.one = goalParsed[2];
     goal.two = goalParsed[3]?.trim();
     goal.three = goalParsed[4]?.trim();
     if (goalParsed[5] !== undefined){
         goal.path = goalParsed[5]?.trim();
+    }
+    if (goalParsed[6] !== undefined){
+        goal.reach = goalParsed[6]?.trim();
     }
 }

@@ -1,4 +1,4 @@
-import { Network } from "vis-network";
+import { Network } from "vis-network/standalone";
 import { getSpecInfos } from "../../components/EditPanel/SpecInfos";
 import { formatSemicolonBreakline } from "./parseUtils";
 
@@ -9,9 +9,13 @@ var output = "";
 * @param {Network} network network displayed on canvas
 */
 export function compileGraph(network){
-    let infos = getSpecInfos();
+    output = "";
+    if (network.body.data.nodes.length === 0){
+        return;
+    }
 
     // Start spec
+    let infos = getSpecInfos();
     compileStart(infos);
     // States
     let nodeSet = network.body.data.nodes;
@@ -38,7 +42,6 @@ export function compileGraph(network){
  * @param {*} infos object containing string infos about the spec
  */
 function compileStart(infos){
-    output = "";
     if (infos.trace){
         output += "option-trace = true;\n"
         output +=  infos.traceExtension ? 'option-output = "' + infos.traceExtension +'";\n' : "";

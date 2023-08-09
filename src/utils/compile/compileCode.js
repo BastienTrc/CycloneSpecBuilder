@@ -38,14 +38,12 @@ export function compileCode(input){
     createEdges(edgesIterator)
     let goal = input.match(goalRegex);
     if (!goal?.length || goal?.length < 2 || goal?.[1] === undefined){
-        alert("Couldn't find goal section");
         return;
     }
     createGoal(goal?.[1])
     let machineTitle = input.match(machineRegex);
     createTitle(machineTitle?.[1])
     if (!machineTitle?.length || machineTitle?.length < 2 || machineTitle?.[1] === undefined){
-        alert("Couldn't parse machine title");
         return;
     }
     let varTemp = input.match(variablesTempRegex);

@@ -2,7 +2,6 @@ import { compileCode } from '../../utils/compile/compileCode';
 import { getCompiledCode } from '../../utils/compile/compileGraph';
 import './ResultPanel.css';
 import React, { useState, useEffect, useRef } from 'react';
-import { loadSpec, saveSpec } from '../../utils/compile/saveLoad';
 import axios from 'axios';
 import AceEditor from "react-ace";
 
@@ -20,7 +19,6 @@ function ResultPanel ({setShowResult}) {
     const aceEditorRef = useRef(null);
     
     useEffect(() => {
-        debugger;
         
         const cycloneMode = new CycloneMode();
             if(aceEditorRef.current != null){
@@ -35,7 +33,6 @@ function ResultPanel ({setShowResult}) {
     const [terminalContent, setTerminalContent] = useState('');   
     
     function backToGraph(){
-        debugger;
         data = compileCode(aceEditorRef.current.editor.getValue())
         // Will allow useEffect on next display of the page
         init = false;
@@ -66,11 +63,6 @@ function ResultPanel ({setShowResult}) {
         
     }
     
-    function doSaveSpec(){
-        let code = aceEditorRef.current.editor.getValue()
-        let title = code.match(machineRegex)?.[1];
-        saveSpec(code, title)
-    }
 
     function doSetSpecCode(code){
         aceEditorRef.current.editor.setValue(code, 1);
@@ -98,8 +90,6 @@ function ResultPanel ({setShowResult}) {
         <button className='resultButton backBtn' onClick={() => backToGraph()}> Back to graph</button>
         <button className='resultButton' onClick={(event) => compileSpec()}> Run </button> 
         <button className='resultButton' onClick={(event) => stopSpec()}> Stop </button> 
-        <button className='resultButton' onClick={() => doSaveSpec()}> Save</button>
-        <button className='resultButton' onClick={() => loadSpec(doSetSpecCode)}> Upload</button>
         </div>
         <div className='fullSeparator'/>
         <textarea readOnly className='terminal grow' defaultValue={terminalContent}/>

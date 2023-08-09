@@ -3,8 +3,12 @@ import { DataSet } from "vis-data/standalone"
 import { switchNodeContent, createSwitchButton } from "./canvasUtils";
 import { compileGraph } from "../compile/compileGraph";
 import { getData } from "../../components/ResultPanel/ResultPanel";
-import compileImg from "../../resources/compile.png";
-import clearImg from "../../resources/clear.png";
+import compileImg from "../../resources/compileIcon.png";
+import clearImg from "../../resources/clearIcon.png";
+import loadImg from "../../resources/loadIcon.png";
+import saveImg from "../../resources/saveIcon.png";
+import { loadSpec, saveSpec } from '../../utils/compile/saveLoad';
+import { setSpecInfos } from "../../components/EditPanel/SpecInfos";
 const {networkOptions, nodeFont, setNetworkCounter} =  require("./networkOptions");
 
 
@@ -41,13 +45,15 @@ var showResult;
 var editMenuPos, editMenuVisible;
 var nodeID; // ID of the node to change type
 
+var reloadVar;
+
 /**
 * Draw canvas with sample data and init every needed function
 * @param {*} setOpen 
 * @param {*} setContent 
 * @returns 
 */
-export function initCanvas(setOpen, setContent, setShowResult, setMenuPos, setMenuVisible){
+export function initCanvas(setOpen, setContent, setShowResult, setMenuPos, setMenuVisible, setReloadVar){
     if (hasBeenInit){
         return;
     }
@@ -60,6 +66,7 @@ export function initCanvas(setOpen, setContent, setShowResult, setMenuPos, setMe
     }
     editMenuPos = setMenuPos;
     editMenuVisible = setMenuVisible;
+    reloadVar = setReloadVar
     
     // create a container for the network
     var container = document.getElementById("canvasContainer");
@@ -254,13 +261,34 @@ function initCanvasHeader() {
     clearButton.appendChild(clearIcon)
     clearButton.className = "imageButton";
     clearIcon.className = "image";
+
+    // Create save button
+    let saveButton = document.createElement("button");
+    saveButton.onclick = () => saveSpec(network);
     
+    let saveIcon = document.createElement("img")
+    saveIcon.src = saveImg
+    saveButton.appendChild(saveIcon)
+    saveButton.className = "imageButton";
+    saveIcon.className = "image";
+
+    // Create save button
+    let importButton = document.createElement("button");
+    importButton.onclick = () => loadSpec(network, reloadVar);
     
+    let importIcon = document.createElement("img")
+    importIcon.src = loadImg
+    importButton.appendChild(importIcon)
+    importButton.className = "imageButton";
+    importIcon.className = "image";
     
-    // Append the 3 created element to the header
+
+    // Append the  created element to the header
     canvasHeader.appendChild(deleteButton);
     canvasHeader.appendChild(codeButton);
     canvasHeader.appendChild(canvasInfo); 
+    canvasHeader.appendChild(saveButton); 
+    canvasHeader.appendChild(importButton); 
     canvasHeader.appendChild(clearButton); 
     canvasHeader.appendChild(compileButton); 
     
@@ -357,6 +385,8 @@ function clearCanvas(){
     cancelAction();
     network.setData({});
     setNetworkCounter(0);
+    setSpecInfos("");
+    reloadVar(Math.random());
 }
 
 export function getNetwork(){
