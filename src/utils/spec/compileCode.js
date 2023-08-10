@@ -14,14 +14,14 @@ var nodes;
 var labelToIdDict;
 var edges;
 var counter = 0;
-var infos = {title:"", variables:"", goal:"", traceWanted:false, extensionForm: "", debug:false}
+var infos = {title:"", variables:"", goal:"", extensionForm: "", debug:false}
 
 /**
  * Compile the code into data for VisNetwork
  * @param {String} input The spec code
  * @returns The data object (contains nodes and edges property)
  */
-export function compileCode(input){
+export function compileCode(input, pngWanted){
     nodes = [];
     labelToIdDict = {};
     edges = [];
@@ -30,7 +30,6 @@ export function compileCode(input){
     input = input.replace(/\/\*(?:.|\s)*?\*\//g, '');
     // Remove everything after //
     input = input.replace(/\/\/.*\s/g, '\n');
-    console.log(input)
     
     let nodeIterator = input.matchAll(nodeRegex);
     createNodes(nodeIterator)
@@ -53,9 +52,14 @@ export function compileCode(input){
     let varPart = input.split(varTemp[0])[0]
     let variables = varPart.match(variablesRegex);
     createVariables(variables?.[1]);
-
-    infos.traceWanted = /option-trace ?= ?true/.test(input);
-    infos.extensionForm = input.match(/option-output ?= ?(.*);/)?.[1];
+    if (pngWanted){
+        infos.extensionForm = "png";
+    } else if (/option-trace ?= ?true/.test(input)){
+        infos.extensionForm = "trace";
+        infos.extensionForm = input.match(/option-output ?= ?(.*);/)?.[1].replaceAll('"',"");
+    } else {
+        infos.extensionForm = "";
+    }
     infos.debug = /option-debug ?= ?true/.test(input);
 
     setSpecInfos(infos);

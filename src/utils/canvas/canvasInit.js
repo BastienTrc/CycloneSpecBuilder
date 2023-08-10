@@ -1,13 +1,13 @@
 import { Network } from "vis-network/standalone";
 import { DataSet } from "vis-data/standalone"
 import { switchNodeContent, createSwitchButton } from "./canvasUtils";
-import { compileGraph } from "../compile/compileGraph";
+import { compileGraph } from "../spec/compileGraph";
 import { getData } from "../../components/ResultPanel/ResultPanel";
 import compileImg from "../../resources/compileIcon.png";
 import clearImg from "../../resources/clearIcon.png";
 import loadImg from "../../resources/loadIcon.png";
 import saveImg from "../../resources/saveIcon.png";
-import { loadSpec, saveSpec } from '../../utils/compile/saveLoad';
+import { loadSpec, saveSpec } from '../spec/saveLoad';
 import { setSpecInfos } from "../../components/EditPanel/SpecInfos";
 const {networkOptions, nodeFont, setNetworkCounter} =  require("./networkOptions");
 
@@ -116,10 +116,6 @@ function generateData(){
 }
 
 function initNetworkEvents(network){
-    network.on("doubleClick", function (params) {
-        showDialog();
-    });
-    
     // Add listener in delete mode, click an element to delete it
     network.on("click", function (params) {
         editMenuVisible(false);
@@ -143,6 +139,16 @@ function initNetworkEvents(network){
         editMenuPos({x:DOMpos.x, y:DOMpos.y})
         editMenuVisible(true)
         network.unselectAll(); // Needed to avoid a bug when deleting several nodes successively. 
+    });
+
+    network.on("doubleClick", function (params) {
+        let selected= network.getSelection()
+        if (selected.nodes.length !== 0 || selected.edges.length !== 0){
+            showDialog();
+            return
+        } 
+        compileGraph(network)
+        showResult(2) // Show editor without compiling
     });
 }
 
@@ -373,12 +379,12 @@ function cancelAddNodeMode(){
 }
 
 function compileCanvas(){
-    showResult(true);
     // Switch into the right mode. (Could have been handled in compile(network) but need to toggle button)
     if (codeMode){
         switchCodeMode();
     }
     compileGraph(network);
+    showResult(1); // Show result and compile
 }
 
 function clearCanvas(){

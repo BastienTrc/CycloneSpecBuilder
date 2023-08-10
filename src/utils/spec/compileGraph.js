@@ -42,9 +42,9 @@ export function compileGraph(network){
  * @param {*} infos object containing string infos about the spec
  */
 function compileStart(infos){
-    if (infos.trace){
+    if (infos.traceExtension !== undefined && infos.traceExtension !== ""){
         output += "option-trace = true;\n"
-        output +=  infos.traceExtension ? 'option-output = "' + infos.traceExtension +'";\n' : "";
+        output +=  infos.traceExtension ? 'option-output = "' + infos.traceExtension +'";\n' : ''; 
     }
     
     output +=  infos.debug ? "option-debug = true;\n" : "";

@@ -1,4 +1,5 @@
 option-trace = true;
+option-output = "dot";
 machine DefuseBomb{
 int jug1 where jug1>=0 && jug1<=3;
 	int jug2 where jug2>=0 && jug2<=5;
@@ -96,6 +97,6 @@ jug2 = 5;
 
 	goal{
 assert ( jug2==4 );
-		check for 2,3,4,5,6 reach (Jug1ToJug2,Jug2ToJug1,EmptyJug1,EmptyJug2,FillJug1,FillJug2)
+		check for 2,3,4,5,6  reach (Jug1ToJug2,Jug2ToJug1,EmptyJug1,EmptyJug2,FillJug1,FillJug2)
 	}
 }

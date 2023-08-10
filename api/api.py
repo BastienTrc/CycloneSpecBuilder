@@ -1,4 +1,4 @@
-import subprocess, os
+import subprocess, os, base64
 from flask import Flask, request
 
 app = Flask(__name__)
@@ -7,28 +7,43 @@ app = Flask(__name__)
 def compileCode():
     if request.method == 'POST':
         data = request.json
+        extension = data['extension']
+        pngWanted = False
+        if extension == "png":
+            extension = "dot"
+            pngWanted = True
         # Write spec in file
-        with open("Cyclone/temp/spec.cyclone",'w') as spec:
+        with open("Cyclone/tmp/spec.cyclone",'w') as spec:
             spec.write(data['specCode'])
             spec.close()
         # Reset trace
-        if os.path.exists("Cyclone/trace/spec.trace"):
-            os.remove("Cyclone/trace/spec.trace")
+        if os.path.exists("Cyclone/trace/spec."+extension):
+            os.remove("Cyclone/trace/spec."+extension)
         # Compile
-        p = subprocess.Popen("cd Cyclone && export DYLD_LIBRARY_PATH=. && java -jar cyclone.jar temp/spec.cyclone", stdout=subprocess.PIPE, shell=True)
-        (stdout,stderr) = p.communicate()
+        p = subprocess.Popen("cd Cyclone && export DYLD_LIBRARY_PATH=. && java -jar cyclone.jar --nocolor tmp/spec.cyclone", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         p.wait()
+        stdout = p.stdout.read().decode()
+        stderr = p.stderr.read().decode()
         print("out")
         print(stdout)
         print("err")
         print(stderr)
-        if stderr != None:
-             return "Error: "+str(stderr), 404
-        if not os.path.exists("Cyclone/trace/spec.trace"):
-            return {"terminal":"Spec didn't generate trace file."}
-        with open("Cyclone/trace/spec.trace",'r') as trace:
+
+        if stderr != "":
+             return str(stderr), 404
+        if not os.path.exists("Cyclone/trace/spec."+extension):
+            return {"terminal":stdout}
+        with open("Cyclone/trace/spec."+extension,'r') as trace:
             content = trace.read()
-        return {"terminal" : content}
+
+        if pngWanted:
+            p = subprocess.Popen("dot -Tpng Cyclone/trace/spec.dot -o Cyclone/trace/spec.png", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            p.wait()
+            with open("Cyclone/trace/spec.png","rb") as f:
+                image=base64.b64encode(f.read()).decode()
+                return {"terminal" : stdout.split("Trace Generated:")[0] +"\n", "image": image}
+        # Stdout is cut to remove absolute path
+        return {"terminal" : stdout.split("Trace Generated:")[0] +"\n"+ content}
     
 
     

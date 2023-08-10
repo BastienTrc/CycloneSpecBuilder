@@ -3,6 +3,17 @@
     width: 100%;
 }
 
+.sideContainer {
+    resize: horizontal;
+    overflow: auto;
+    width: 70%;
+}
+
+.buttonContainer{
+    min-height: 30px;
+    max-height: 6%;
+}
+
 .resultButton{ 
     border: 1.5px solid black;
     border-radius: 4px;
@@ -28,4 +39,13 @@
 
 .button.active{
     background-color: forestgreen;
+}
+
+.traceImage{
+    width: 100%;
+}
+
+#codeContainer{
+	overflow: hidden;
+    resize: horizontal;
 }

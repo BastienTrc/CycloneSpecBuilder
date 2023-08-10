@@ -9,7 +9,6 @@ export async function loadSpec(currNetwork, setRefresh) {
   
   input.onchange = async e => { 
     let jsonData = await (e.target.files[0].text()); 
-    debugger;
     importNetwork(jsonData, currNetwork); 
     setRefresh(Math.random());
   }
@@ -60,7 +59,6 @@ function importNetwork(inputValue, currNetwork) {
     nodes: getNodeData(inputData.nodes),
     edges: getEdgeData(inputData.edges),
   };
-  debugger;
   currNetwork.setData(data);
   
 }

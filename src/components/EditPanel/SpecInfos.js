@@ -2,26 +2,16 @@ import { Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, 
 import './SpecInfos.css'
 import React from 'react';
 
-var infos = {title:"", variables:"",  goal:"", traceWanted:false, extensionForm: "", debug:false}
+var infos = {title:"", variables:"",  goal:"", extensionForm: "", debug:false}
 var goal = {properties:"", one:"", two:"", three:"", path:"", reach:""}
 
 function SpecInfos({reloadVar}) {
-    const [traceWanted, setTraceWanted] = React.useState(false);
-    
-    function editTraceWanted(value){
-        infos.traceWanted = value;
-        setTraceWanted(value);
-    }
 
     const [checkMode, setCheckMode] = React.useState("");
     function editCheckMode(value){
         goal.one = value;
         setCheckMode(value);
     }
-
-    React.useEffect( () => {
-        setTraceWanted(infos.traceWanted)
-    },[])
     
     return (
         <div className='specInfosContainer flexC bordered spaced'>
@@ -45,7 +35,7 @@ function SpecInfos({reloadVar}) {
         {checkMode !== "enumerate" ? 
         <><FormControl className='grow'>
         <InputLabel>for/each/upto</InputLabel>
-            <Select
+            <Select 
                 label="traceExtension"
                 defaultValue={goal.two}
                 onChange={(event) => goal.two = event.target.value}>
@@ -65,22 +55,22 @@ function SpecInfos({reloadVar}) {
           style={{width:'40%'}} InputProps={{readOnly: true, }} variant="outlined" multiline={false} value="for"/>
         }
         </div>
-        <TextField label="State number" variant="outlined" multiline={true} defaultValue={goal.three} onChange={(event) => goal.three = event.target.value}/>
+        <TextField label="Path length" variant="outlined" multiline={true} defaultValue={goal.three} onChange={(event) => goal.three = event.target.value}/>
         <TextField label="Path (optional)" variant="outlined" multiline={true} defaultValue={goal.path} onChange={(event) => goal.path = event.target.value}/>
         <TextField label="Reach (optional)" variant="outlined" multiline={true} defaultValue={goal.reach} onChange={(event) => goal.reach = event.target.value}/>
-        <FormControlLabel control={<Checkbox id='traceForm' defaultChecked={infos.traceWanted}/>} label="Generate trace" onChange={(event) => editTraceWanted(event.target.checked)}/>
-        {traceWanted ? 
         <FormControl>
-        <InputLabel>Trace extension</InputLabel>
             <Select
+                sx={{ '& legend': { display: 'none' }, '& fieldset': { top: 0 },}} 
                 label="traceExtension"
                 defaultValue={infos.extensionForm}
-                onChange={(event) => infos.extensionForm = event.target.value}>
-                <MenuItem value={"dot"}>Dot file</MenuItem>
-                <MenuItem value={"png"}>Png file</MenuItem>
+                onChange={(event) => infos.extensionForm = event.target.value}
+               displayEmpty>
+                <MenuItem value={""}>No trace </MenuItem>
+                <MenuItem value={"trace"}>Trace: .trace </MenuItem>
+                <MenuItem value={"dot"}>Trace: .dot </MenuItem>
+                <MenuItem value={"png"}>Trace: .png </MenuItem>
             </Select> 
         </FormControl>
-            : ""}
         <FormControlLabel control={<Checkbox id="debugForm" defaultChecked={infos.debug}/>} label="Generate log" onChange={(event) => infos.debug = event.target.checked}/>
         </div>
         </div>
@@ -98,7 +88,6 @@ export function getSpecInfos(){
         title: infos.title,
         variables:  infos.variables,
         goal:  `${goal.properties}\n${goal.one} ${goal.two} ${goal.three} ${goal.path ? "condition"+goal.path : ""} reach ${goal.reach}`,
-        trace: infos.traceWanted,
         traceExtension: infos.extensionForm,
         debug: infos.debug
     }
@@ -107,7 +96,7 @@ export function getSpecInfos(){
 
 export function setSpecInfos(content){
     if (content === "" || !content){
-        infos = {title:"", variables:"",  goal:"", traceWanted:false, extensionForm: "", debug:false}
+        infos = {title:"", variables:"",  goal:"", extensionForm: "", debug:false}
         goal = {properties:"", one:"", two:"", three:"", path:"", reach:""}
         return;
     }
