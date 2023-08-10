@@ -88,7 +88,7 @@ export function getSpecInfos(){
         title: infos.title,
         variables:  infos.variables,
         goal:  `${goal.properties}\n${goal.one} ${goal.two} ${goal.three} ${goal.path ? "condition"+goal.path : ""} reach ${goal.reach}`,
-        traceExtension: infos.extensionForm,
+        extensionForm: infos.extensionForm,
         debug: infos.debug
     }
     return res;
@@ -99,6 +99,10 @@ export function setSpecInfos(content){
         infos = {title:"", variables:"",  goal:"", extensionForm: "", debug:false}
         goal = {properties:"", one:"", two:"", three:"", path:"", reach:""}
         return;
+    }
+    console.log(content)
+    if (content.extensionForm === undefined){
+        content.extensionForm = "";
     }
     infos = content;
     let goalParsed = content.goal.match(/((?:(?:.|\s)*;\s*)*)(check|enumerate|upto|reach) \s*([^ ]*)\s*([^ ]*)\s*(?:condition\s*([^ ]*))?\s*(?:reach\s*([^ ]*))?/);

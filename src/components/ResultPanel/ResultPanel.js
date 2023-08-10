@@ -18,9 +18,10 @@ var pngWanted;
 function ResultPanel ({setShowResult, launchSpec}) {
     
     const aceEditorRef = useRef(null);
-    const [terminalContent, setTerminalContent] = useState('');   
-    const [imageBytes, setImageBytes] = React.useState("");
-    const [showEditor, setShowEditor] = React.useState(!launchSpec)
+    const [terminalContent, setTerminalContent] = useState(''); 
+    const [isRunning, setIsRunning] = useState(false)  
+    const [imageBytes, setImageBytes] = useState("");
+    const [showEditor, setShowEditor] = useState(!launchSpec)
     
     useEffect( () => {
         const cycloneMode = new CycloneMode();
@@ -53,10 +54,11 @@ function ResultPanel ({setShowResult, launchSpec}) {
     
     async function compileSpec(){
         let code = aceEditorRef?.current?.editor.getValue();
-        let extension = pngWanted ? "png" : code.match(/option-output *= *(.*);/)?.[1].replaceAll('"','').trim();
+        let extension = pngWanted ? "png" : code.match(/option-output *= *(.*);/)?.[1].replaceAll('"','').trim() ;
         if (code === ""){
             setTerminalContent("Specification is empty, check cancelled.")
         }
+        setIsRunning(true)
         setTerminalContent("Specification is being checked...")
         setImageBytes("")
         await axios({
@@ -64,15 +66,17 @@ function ResultPanel ({setShowResult, launchSpec}) {
             url:"/compileCode", 
             data: {
                 specCode : code,
-                extension : extension // default mode is png
+                extension : extension ? extension : "" // default mode is png
             }
         })
         .then((response) => {
+            setIsRunning(false)
             if (extension === "png"){
                 setImageBytes(response.data.image)
             } 
             setTerminalContent(response.data.terminal)
         }).catch((error) => {
+            setIsRunning(false)
             if (error.response) {
                 console.log(error.response)
             }
@@ -119,7 +123,6 @@ function ResultPanel ({setShowResult, launchSpec}) {
         <div className='sideContainer flexC bordered'> 
         <div className='buttonContainer flex evenly spaced'>
         <button className='resultButton backBtn' onClick={() => backToGraph()}> Back to graph</button>
-        <button className='resultButton' onClick={(event) => compileSpec()}> Run </button> 
         <FormControl>
             <Select sx={{ "& fieldset": { border: 'none' }, height: '100%'}} className='resultButton' size="small"
                 label="traceExtension"
@@ -133,6 +136,7 @@ function ResultPanel ({setShowResult, launchSpec}) {
                 <MenuItem value={"png"}>Trace: .png </MenuItem>
             </Select> 
         </FormControl>
+        <button className='resultButton' disabled={isRunning} onClick={(event) => compileSpec()}> Run </button> 
         <button className='resultButton' onClick={() => setShowEditor(!showEditor)}> Show/Hide Editor </button> 
         </div>
         <div className='fullSeparator'/>

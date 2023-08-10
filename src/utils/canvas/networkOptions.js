@@ -49,7 +49,12 @@ export const networkOptions = {
     },
     height: "90%",
     edges: {
-        arrows:'to',
+        arrows:{
+            to:{
+                enabled: true,
+                type: "vee",
+            },
+        },
         smooth:false, // Straight line or not
     },
     physics: { // Physics are enabled to avoid overlap
