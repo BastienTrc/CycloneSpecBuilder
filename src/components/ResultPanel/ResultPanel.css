@@ -23,11 +23,14 @@
     padding: 0.85vh;
 
     font-size: 100%;
-
     cursor: pointer;
 }
 
-.resultButton:hover{ 
+.resultButton:disabled{
+    cursor: progress;
+ }
+
+.resultButton:hover:active{ 
     background-color: rgb(237, 154, 0);
 }
 
@@ -35,10 +38,9 @@
     cursor: not-allowed;
     resize: none;
     border: none;
-}
-
-.button.active{
-    background-color: forestgreen;
+    white-space: pre-line;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .traceImage{
@@ -47,5 +49,4 @@
 
 #codeContainer{
 	overflow: hidden;
-    resize: horizontal;
 }

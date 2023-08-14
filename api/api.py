@@ -24,10 +24,6 @@ def compileCode():
         p.wait()
         stdout = p.stdout.read().decode()
         stderr = p.stderr.read().decode()
-        print("out")
-        print(stdout)
-        print("err")
-        print(stderr)
 
         if stderr != "":
              return str(stderr), 404

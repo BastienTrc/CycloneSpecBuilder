@@ -66,7 +66,7 @@ function ResultPanel ({setShowResult, launchSpec}) {
             url:"/compileCode", 
             data: {
                 specCode : code,
-                extension : extension ? extension : "" // default mode is png
+                extension : extension ? extension : "" // default mode will be png
             }
         })
         .then((response) => {
@@ -74,7 +74,7 @@ function ResultPanel ({setShowResult, launchSpec}) {
             if (extension === "png"){
                 setImageBytes(response.data.image)
             } 
-            setTerminalContent(response.data.terminal)
+            setTerminalContent(response.data.terminal.trim())
         }).catch((error) => {
             setIsRunning(false)
             if (error.response) {
