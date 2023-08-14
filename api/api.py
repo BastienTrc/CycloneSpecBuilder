@@ -1,4 +1,4 @@
-import subprocess, os, base64
+import subprocess, os, base64, platform
 from flask import Flask, request
 
 app = Flask(__name__)
@@ -20,7 +20,13 @@ def compileCode():
         if os.path.exists("Cyclone/trace/spec."+extension):
             os.remove("Cyclone/trace/spec."+extension)
         # Compile
-        p = subprocess.Popen("cd Cyclone && export DYLD_LIBRARY_PATH=. && java -jar cyclone.jar --nocolor tmp/spec.cyclone", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        if (platform.system() == "Darwin"):
+            p = subprocess.Popen("cd Cyclone && export DYLD_LIBRARY_PATH=. && java -jar cyclone.jar --nocolor tmp/spec.cyclone", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        elif (platform.system() == "Linux"):
+            p = subprocess.Popen("cd Cyclone && export LD_LIBRARY_PATH=. && java -jar cyclone.jar --nocolor tmp/spec.cyclone", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        else : 
+            p = subprocess.Popen("cd Cyclone && java -jar cyclone.jar --nocolor tmp/spec.cyclone", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
         p.wait()
         stdout = p.stdout.read().decode()
         stderr = p.stderr.read().decode()
