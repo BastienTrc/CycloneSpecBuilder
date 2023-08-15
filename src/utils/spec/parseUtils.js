@@ -67,6 +67,7 @@ export function formatSemicolonBreakline(content, tabNumber){
     
     content = lines.join("\n")
 
-    return addTab(content,tabNumber)?.trim();
+    // Need to add the first repeat because of the end trim
+    return "\t".repeat(tabNumber) + addTab(content,tabNumber)?.trim();
     // return addTab(addBreaklines(addSemicolons(content)),tabNumber); Not yet found a nice helper
 }

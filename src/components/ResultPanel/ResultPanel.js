@@ -38,9 +38,12 @@ function ResultPanel ({setShowResult, launchSpec}) {
         aceEditor.setValue(code, 1);
 
         // For unknown reason, useEffect called twice, making solver crash
-        if (!pageInit && launchSpec){ 
+        if (!pageInit){ 
             pageInit = true;
-            compileSpec()
+            document.getElementById("outputContainer")?.addEventListener("dblclick", (event) => {backToGraph()})
+            if (launchSpec){
+                compileSpec()
+            }
         }
     }, []) 
     
@@ -140,8 +143,10 @@ function ResultPanel ({setShowResult, launchSpec}) {
         <button className='resultButton' onClick={() => setShowEditor(!showEditor)}> Show/Hide Editor </button> 
         </div>
         <div className='fullSeparator'/>
-        <pre className='terminal ' > {terminalContent}</pre>
+        <div id='outputContainer'>
+        <pre id='terminal' > {terminalContent}</pre>
         {imageBytes ? <img src={"data:image/png;base64,"+imageBytes} className='traceImage'/> : ""}
+        </div>
         </div>
 
         <AceEditor className='bordered spaced flex grow'

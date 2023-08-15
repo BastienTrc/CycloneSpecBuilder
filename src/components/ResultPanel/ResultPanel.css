@@ -20,8 +20,6 @@
 
     background-color: orange;
 
-    padding: 0.85vh;
-
     font-size: 100%;
     cursor: pointer;
 }
@@ -34,8 +32,11 @@
     background-color: rgb(237, 154, 0);
 }
 
-.terminal{
-    cursor: not-allowed;
+#outputContainer{
+    height: 100%;
+}
+
+#terminal{
     resize: none;
     border: none;
     white-space: pre-line;

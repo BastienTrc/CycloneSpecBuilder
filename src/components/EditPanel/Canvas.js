@@ -5,7 +5,7 @@ import FormDialog from './FormDialog'
 import ContextMenu from "../../utils/canvas/ContextMenu";
 
 
-function Canvas({ setShowResult, setReloadVar}){
+function Canvas({ setShowResult, setReloadInfos}){
 
   // Used to show the dialog
   const [open, setOpen] = React.useState(false);
@@ -17,7 +17,7 @@ function Canvas({ setShowResult, setReloadVar}){
 
 
   useEffect( () => {
-    initCanvas(setOpen, setContent, setShowResult, setMenuPos, setMenuVisible, setReloadVar);
+    initCanvas(setOpen, setContent, setShowResult, setMenuPos, setMenuVisible, setReloadInfos);
   },[]);
   
   return (

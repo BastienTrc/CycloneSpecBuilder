@@ -1,19 +1,22 @@
-import { Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, TextField, IconButton} from '@mui/material';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import './SpecInfos.css'
 import React from 'react';
 import { getNetwork } from '../../utils/canvas/canvasInit';
 
-var infos = {title:"", variables:"",  goal:"", extensionForm: "", debug:false}
+var infos = {title:"",   goal:"", extensionForm: "", debug:false}
+var varList = [];
 var goal = {properties:"", one:"", two:"", three:"", path:"", reach:[]}
 var reachOptions = [];
 var network;
-var init = false;
 
-function SpecInfos({reloadVar}) {
-    
-    const [checkMode, setCheckMode] = React.useState("");
+
+function SpecInfos({reloadInfos}) {
     
     const [reloadReach, setReloadReach] = React.useState(0); // Used to update select items
+    const [reloadVariables, setReloadVariables] = React.useState(0); // Used to update select items
+    const [checkMode, setCheckMode] = React.useState("");
     function editCheckMode(value){
         goal.one = value;
         setCheckMode(value);
@@ -26,41 +29,85 @@ function SpecInfos({reloadVar}) {
         
         
         // Update reach select menu when user add and remove nodes
-        network.body.data.nodes._subscribers.remove[1] = ("remove", (eventName, removedNode) => {
-            reachOptions = reachOptions.filter(e => e !== removedNode.items[0]);
-            goal.reach = goal.reach.filter(e => e !== removedNode.items[0]); // Delete from options if checked earlier
+        network.body.data.nodes._subscribers.remove[1] = ((eventName, event) => {
+            let nodeLabel = event.oldData[0].label
+            reachOptions = reachOptions.filter(e => e !== nodeLabel);
+            goal.reach = goal.reach.filter(e => e !== nodeLabel); // Delete from options if checked earlier
             setReloadReach(Math.random())
         })
-        network.body.data.nodes._subscribers.add[1] = ("add", (eventName, addedNode) => {
-            reachOptions.push(addedNode.items[0]);
+        network.body.data.nodes._subscribers.add[1] = ((eventName, event) => {
+            reachOptions.push(event.items[0]);
             setReloadReach(Math.random())
         })
         // Update selections and reach options if a node label is edited
-        network.body.data.nodes._subscribers.update[1] = ("update", (eventName, content) => {
-            debugger;
-            let oldLabel = content.oldData[0].label;
+        network.body.data.nodes._subscribers.update[1] = ((eventName, event) => {
+            let oldLabel = event.oldData[0].label;
             let index = reachOptions.indexOf(oldLabel)
             if (index === -1){
                 return
             }
-            reachOptions[index] = network.body.data.nodes.get(content.items[0]).label
+            reachOptions[index] = network.body.data.nodes.get(event.items[0]).label
             index = goal.reach.indexOf(oldLabel)
             if (index === -1){
                 setReloadReach(Math.random())
                 return
             }
-            goal.reach[index] = network.body.data.nodes.get(content.items[0]).label
+            goal.reach[index] = network.body.data.nodes.get(event.items[0]).label
             setReloadReach(Math.random())})
         
-    }, [reloadVar])
+    }, [reloadInfos])
+
+    function deleteVar(index){
+        let element = varList[index]
+        varList = varList.filter(e => e !== element)
+        setReloadVariables(Math.random())
+    }
+
+    function addVar(){
+        varList.push({varType:"", name:"", condition:""})
+        setReloadVariables(Math.random())
+    }
 
     return (
         <div className='specInfosContainer flexC bordered spaced'>
         <div className='specInfosTitle'> Specification's Infos</div>
         <div className='fullSeparator'/>
-        <div id="infosContainer" className='infosContainer flexC' key={reloadVar}> 
+        <div id="infosContainer" className='infosContainer flexC' key={reloadInfos}> 
         <TextField label="Graph name" variant="outlined" defaultValue={infos.title} onChange={(event) => infos.title = event.target.value}/>
-        <TextField label="Variables" variant="outlined" multiline={true} defaultValue={infos.variables} onChange={(event) => infos.variables = event.target.value}/>
+       
+        { varList.length !== 0 ? 
+        <div key={reloadVariables} className='flexC bordered varContainer'> 
+        {varList.map((property, index) => {
+            return(
+                <div className='varOptionsContainer flexC'>
+                <div className='flex alignC'>
+                <FormControl size='small'>
+                <InputLabel>Type</InputLabel>
+                <Select sx={{minWidth:"80px"}}
+                label="varType"
+                size='small'
+                defaultValue={property.varType}
+                onChange={(event) => property.varType = event.target.value}>
+                <MenuItem value={"int"}>int</MenuItem>
+                <MenuItem value={"bool"}>bool</MenuItem>
+                </Select>
+                </FormControl>
+                <TextField sx={{marginLeft:"4px"}} label="name" variant="outlined" multiline={true} defaultValue={property.name} size='small' onChange={(event) => property.name = event.target.value}/>
+                </div>
+                <div className='flex grow'>
+                <TextField className='flex grow' label="condition" variant="outlined" multiline={true} size='small' defaultValue={property.condition} onChange={(event) => property.condition = event.target.value}/>
+                <IconButton aria-label="delete" size='small' onClick={() => deleteVar(index)}>
+                <RemoveCircleOutlineIcon />
+                </IconButton>
+                </div>
+                </div>)
+        })} 
+        </div> 
+        : ""}
+        <IconButton aria-label="delete" onClick={() => addVar()} sx={{borderRadius:"5%"}}>
+            Add variable <AddCircleOutlineIcon/>
+        </IconButton>
+        
         <TextField label="Properties" variant="outlined" multiline={true} defaultValue={goal.properties} onChange={(event) => goal.properties = event.target.value}/>
         <div className='flex'>
         <FormControl className='grow'>
@@ -137,9 +184,12 @@ export default SpecInfos;
 * @returns json containing title, variables and goal
 */
 export function getSpecInfos(){
+    debugger;
     let res = {
         title: infos.title,
-        variables:  infos.variables,
+        variables:  varList.map(property => {
+            return `${property.varType} ${property.name} ${property.condition ? `where ${property.condition}` : ""};\n`
+        }).join(""),
         goal:  `${goal.properties}\n${goal.one} ${goal.two} ${goal.three} ${goal.path ? "condition"+goal.path : ""} reach (${goal.reach.join(",")})`,
         extensionForm: infos.extensionForm,
         debug: infos.debug
@@ -148,16 +198,28 @@ export function getSpecInfos(){
 }
 
 export function setSpecInfos(content){
+    varList = []; // Reset variables
     if (content === "" || !content){
-        infos = {title:"", variables:"",  goal:"", extensionForm: "", debug:false}
+        infos = {title:"",  goal:"", extensionForm: "", debug:false}
         goal = {properties:"", one:"", two:"", three:"", path:"", reach:[]}
         return;
     }
-    console.log(content)
     if (content.extensionForm === undefined){
         content.extensionForm = "";
     }
     infos = content;
+    let varIterator = content.variables.matchAll(/(int|bool)\s+(.*?)\s*(?:where\s+(.*?))?;/g)
+    let currentVar = varIterator.next();
+    while (!currentVar.done){
+        varList.push({
+            varType: currentVar.value[1],
+            name: currentVar.value[2],
+            condition: currentVar.value.length === 4 ? currentVar.value[3] : ""
+        })
+        currentVar = varIterator.next();
+    }
+
+
     let goalParsed = content.goal.match(/((?:(?:.|\s)*;\s*)*)(check|enumerate|upto|reach) \s*([^ ]*)\s*([^ ]*)\s*(?:condition\s*([^ ]*))?\s*(?:reach\s*\((.*)\))?/);
     goal.properties = goalParsed[1]?.trim();
     goal.one = goalParsed[2];

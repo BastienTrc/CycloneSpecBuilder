@@ -6,7 +6,7 @@ import SpecInfos from './SpecInfos';
 
 function EditPanel ({setShowResult}) {
     // Used to reload specInfos panel
-    const [reloadVar, setReloadVar] = useState("");
+    const [reloadInfos, setReloadInfos] = useState("");
     
     // // List of all the tabs
     // const [tabs,setTabs] = useState([
@@ -42,9 +42,9 @@ function EditPanel ({setShowResult}) {
             <>
             <div className='editPanelContainer'>
             {/* <div className='tabContainer flex'> {tabList} </div> */}
-            <Canvas setShowResult={setShowResult} setReloadVar={setReloadVar} /*panel={tabs[parseInt(activeTabId.split("tab")[1]) - 1]}*/ />
+            <Canvas setShowResult={setShowResult} setReloadInfos={setReloadInfos} /*panel={tabs[parseInt(activeTabId.split("tab")[1]) - 1]}*/ />
             </div>
-            <SpecInfos reloadVar={reloadVar}/>
+            <SpecInfos reloadInfos={reloadInfos}/>
             </>
             )
         }

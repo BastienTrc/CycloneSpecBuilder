@@ -1,9 +1,11 @@
 import {saveAs} from 'file-saver';
 import { DataSet } from "vis-data/standalone"
 import { getSpecInfos, setSpecInfos } from '../../components/EditPanel/SpecInfos';
+import { setNetworkCounter } from '../canvas/networkOptions';
 
 var input = document.createElement('input');
 var network;
+
 export async function loadSpec(currNetwork, setRefresh) {
   input.type = 'file';
   
@@ -60,7 +62,6 @@ function importNetwork(inputValue, currNetwork) {
     edges: getEdgeData(inputData.edges),
   };
   currNetwork.setData(data);
-  
 }
 
 function getNodeData(data) {
@@ -76,20 +77,10 @@ function getNodeData(data) {
       y: elem.y,
     });
   });
-  
+  setNetworkCounter(networkNodes.length)
   return new DataSet(networkNodes);
 }
 
-function getNodeById(data, id) {
-  for (var n = 0; n < data.length; n++) {
-    if (data[n].id == id) {
-      // double equals since id can be numeric or string
-      return data[n];
-    }
-  }
-  
-  throw "Can not find id '" + id + "' in data";
-}
 
 function getEdgeData(data) {
   var networkEdges = [];

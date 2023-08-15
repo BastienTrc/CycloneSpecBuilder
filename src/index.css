@@ -61,6 +61,10 @@ code {
   justify-content: space-evenly;
 }
 
+alignC{
+  align-items: center;
+}
+
 .flexC{
   display: flex;
   flex-direction: column;

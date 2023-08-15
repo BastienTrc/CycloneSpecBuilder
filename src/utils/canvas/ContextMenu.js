@@ -51,7 +51,7 @@ export function ContextMenu({pos, visible, setVisible}){
     return (
       <List 
       id='contextMenu' 
-      style={{...menuStyle, position:"absolute", visibility:visible ? "visible" : "hidden"}}
+      style={{position:"absolute", visibility:visible ? "visible" : "hidden", backgroundColor:"white"}}
       dense={true}
       sx={{ border: 1,borderRadius: "5%", borderColor:"warning.main", padding: 0 }}>
         {items}

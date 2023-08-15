@@ -1,5 +1,5 @@
 .specInfosContainer{
-    width: 100%;    
+    width: 20.5vw;   
 }
 
 .specInfosTitle{
@@ -12,4 +12,17 @@
     gap: 10px;
     overflow-y: scroll;
     flex-grow: 1;
+}
+
+.varContainer{
+    padding-top: 4px;
+    gap: 6px;
+}
+
+.varOptionsContainer{
+    gap: 4px;
+
+    padding: 3px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
