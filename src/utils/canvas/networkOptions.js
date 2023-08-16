@@ -1,6 +1,23 @@
-import { getNetwork, getNodeContent } from "./canvasInit";
+import { getNetwork, getNodeContent, linkSeveralNodes } from "./canvasInit";
 
 var counter = 0;
+
+var severalMode = 0; // 0 is false, 1 is Plus mode, 2 is star node
+
+export function setSeveralMode(value){
+    severalMode = value;
+}
+
+function hash(str) {
+    var hash = 0, i, chr;
+    if (str.length === 0) return hash;
+    for (i = 0; i < str.length; i++) {
+      chr = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+  }
 
 // Node layout options
 export const nodeFont = {
@@ -23,16 +40,39 @@ export const networkOptions = {
             getNetwork().addNodeMode(); // Allow several add of nodes
         },
         addEdge: function(edgeData,callback) {
+            let network = getNetwork()
+            let connectedNodes = network.getConnectedNodes(edgeData.from, "to")
+            debugger;
+            if (severalMode >= 1){
+                network.body.nodeIndices.forEach( nodeId => {
+                    // If will link to itself and in Plus mode, return
+                    if ((nodeId === edgeData.from && severalMode === 1) || connectedNodes.includes(nodeId) ){
+                        return;
+                    }
+                       
+                    edgeData.to = nodeId
+                    edgeData.id = hash(edgeData+nodeId+Math.random())
+                    callback({...edgeData}); // Make a copy or else will share the same object
+                    network.addEdgeMode();
+                })
+                callback()
+                return;
+            }
+            if (connectedNodes.includes(edgeData.to)){
+                window.alert("Edge already exist")
+                callback()
+                return;
+            }
             if (edgeData.from === edgeData.to) {
                 var r = window.confirm("Do you want to connect the node to itself?");
                 if (r === true) {
                     callback(edgeData);
-                    getNetwork().addEdgeMode(); // Allow several add of edges
+                    network.addEdgeMode(); // Allow several add of edges
                 }
             }
             else {
                 callback(edgeData);
-                getNetwork().addEdgeMode(); // Allow several add of edges
+                network.addEdgeMode(); // Allow several add of edges
             }
         },
         editNode: function(nodeData,callback) {

@@ -9,7 +9,7 @@ import loadImg from "../../resources/loadIcon.png";
 import saveImg from "../../resources/saveIcon.png";
 import { loadSpec, saveSpec } from '../spec/saveLoad';
 import { setSpecInfos } from "../../components/EditPanel/SpecInfos";
-const {networkOptions, nodeFont, setNetworkCounter} =  require("./networkOptions");
+const {networkOptions, nodeFont, setNetworkCounter, setSeveralMode} =  require("./networkOptions");
 
 
 var network;
@@ -331,19 +331,44 @@ export function switchEdgeMode() {
     if (edgeMode){
         getNetwork().disableEditMode();
         setCanvasInfo("Ready to draw!");
-        document.getElementById("EdgeNode")?.classList.remove('selected');
+        document.getElementById(nodeContent)?.classList.remove('selected');
         edgeMode = false;
-        return;
+         // if user clicked twice on the same button
+        if (nodeContent === "EdgeNode"){
+            return;
+        }
     } 
     // Only one mode can be activated at a time.
     cancelAction();
     nodeContent = "EdgeNode";
+    setSeveralMode(0)
     getNetwork().addEdgeMode();
     setCanvasInfo("Click a node and drag to another one to link");
     document.getElementById("EdgeNode")?.classList.add('selected');
     edgeMode = true;
     
 };
+
+export function linkSeveralNodes(excludeItself){
+    if (edgeMode){
+        getNetwork().disableEditMode();
+        setCanvasInfo("Ready to draw!");
+        document.getElementById(nodeContent)?.classList.remove('selected');
+        edgeMode = false;
+        // if user clicked twice on the same button
+        if (nodeContent === "EdgeNode"+ (excludeItself ? "Plus" : "Star")){
+            return;
+        }
+    } 
+    // Only one mode can be activated at a time.
+    cancelAction();
+    nodeContent = "EdgeNode" + (excludeItself ? "Plus" : "Star");
+    setSeveralMode(excludeItself ? 1 : 2)
+    getNetwork().addEdgeMode();
+    setCanvasInfo("Select the node that will be linked to the others");
+    document.getElementById("EdgeNode"+ (excludeItself ? "Plus" : "Star"))?.classList.add('selected');
+    edgeMode = true;
+}
 
 /**
 * Cancel current edit action and toggle appropriated button. /!\ DON'T call it in function executed by switch buttons or endless recursion.
@@ -357,7 +382,10 @@ export function cancelAction() {
     // Cancel by clicking the right switch button
     let id = "";
     if (edgeMode){
-        switchEdgeMode()
+        getNetwork().disableEditMode();
+        setCanvasInfo("Ready to draw!");
+        document.getElementById(nodeContent)?.classList.remove('selected');
+        edgeMode = false;
     } else if (deleteMode){
         id = 'switchDeleteMode'
     }

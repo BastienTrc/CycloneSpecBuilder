@@ -1,7 +1,7 @@
 import './BlockList.css'
 import React from 'react';
 import { useState } from 'react';
-import { cancelAction, getNetwork, setAddNodeMode, setCanvasInfo, setNodeContent, switchEdgeMode} from '../../utils/canvas/canvasInit';
+import { cancelAction, getNetwork, linkSeveralNodes, setAddNodeMode, setCanvasInfo, setNodeContent, switchEdgeMode} from '../../utils/canvas/canvasInit';
 import Nodes from './Blocks/Nodes';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 
@@ -50,8 +50,14 @@ const BlockList = () => {
     <div className='fullSeparator'/>
     <div className='blockList'>
      
-        <button onClick={switchEdgeMode} className='libraryNode Normal' id='EdgeNode'>
+        <button onClick={switchEdgeMode} title='Single link' className='libraryNode Normal' id='EdgeNode'>
           <ArrowRightAltIcon fontSize='large'/>
+        </button>
+        <button onClick={() => linkSeveralNodes(true)} title='All node but itself' className='libraryNode Normal' id='EdgeNodePlus'>
+          <ArrowRightAltIcon fontSize='large'/> +
+        </button>
+        <button onClick={() => linkSeveralNodes(false)} title='All node' className='libraryNode Normal' id='EdgeNodeStar'>
+          <ArrowRightAltIcon fontSize='large'/> * 
         </button>
       {blockList}
     </div>
