@@ -147,6 +147,9 @@ function initNetworkEvents(network){
             showDialog();
             return
         } 
+        if (codeMode){
+            switchCodeMode()
+        }
         compileGraph(network)
         showResult(2) // Show editor without compiling
     });
