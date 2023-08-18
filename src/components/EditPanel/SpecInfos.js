@@ -1,7 +1,7 @@
 import { Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, TextField, IconButton} from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import './SpecInfos.css'
+import './SpecSelectedInfos.css'
 import React from 'react';
 import { getNetwork } from '../../utils/canvas/canvasInit';
 
@@ -69,8 +69,8 @@ function SpecInfos({reloadInfos}) {
     }
 
     return (
-        <div className='specInfosContainer flexC bordered spaced'>
-        <div className='specInfosTitle'> Specification's Infos</div>
+        <div className='container flexC bordered spaced'>
+        <div className='infosTitle'> Specification's Infos</div>
         <div className='fullSeparator'/>
         <div id="infosContainer" className='infosContainer flexC' key={reloadInfos}> 
         <TextField label="Graph name" variant="outlined" defaultValue={infos.title} onChange={(event) => infos.title = event.target.value}/>

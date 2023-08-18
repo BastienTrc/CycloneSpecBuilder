@@ -25,27 +25,18 @@ const linkKey = 'l'
 const deleteKey = 'd'
 const codeKey = 'c'
 
-// Used to edit the node
-var nodeContent = "";
-var setEditContent;
-
-// Function that will open the dialog for editing node
-var setOpenDialog;
-var isDialogOpen = false;
-
 var switchButtons = [];
 
-// For unknown reason, initCanvas is run twice, causing problem with eventListeners
-var hasBeenInit;
-
-// Show result of compile
-var showResult;
-
-// Context Menu function
-var editMenuPos, editMenuVisible;
+var nodeContent = ""; // Used to edit the node
+var setEditContent; // ^^^
+var setOpenDialog; // Function that will open the dialog for editing node
+var isDialogOpen = false; // ^^^
+var hasBeenInit; // For unknown reason, initCanvas is run twice, causing problem with eventListeners
+var showResult; // Show result of compile
+var setMenuPos, setMenuVisible; // Context Menu function
 var nodeID; // ID of the node to change type
-
-var reloadVar;
+var setReloadVar; // When called with random number, update specInfo
+var setSelectedData; // To display selected node/edge on right panel
 
 /**
 * Draw canvas with sample data and init every needed function
@@ -53,7 +44,7 @@ var reloadVar;
 * @param {*} setContent 
 * @returns 
 */
-export function initCanvas(setOpen, setContent, setShowResult, setMenuPos, setMenuVisible, setReloadVar){
+export function initCanvas(setOpen, setContent, setShowResult, menuPosFunc, menuVisibleFunc, reloadVarFunc, setData){
     if (hasBeenInit){
         return;
     }
@@ -64,9 +55,10 @@ export function initCanvas(setOpen, setContent, setShowResult, setMenuPos, setMe
         hasBeenInit = false; // Once we show result, canvas will disappear and won't be loaded.
         setShowResult(value)
     }
-    editMenuPos = setMenuPos;
-    editMenuVisible = setMenuVisible;
-    reloadVar = setReloadVar
+    setMenuPos = menuPosFunc;
+    setMenuVisible = menuVisibleFunc;
+    setReloadVar = reloadVarFunc
+    setSelectedData = setData;
     
     // create a container for the network
     var container = document.getElementById("canvasContainer");
@@ -118,7 +110,8 @@ function generateData(){
 function initNetworkEvents(network){
     // Add listener in delete mode, click an element to delete it
     network.on("click", function (params) {
-        editMenuVisible(false);
+        setMenuVisible(false);
+        setSelectedData(undefined)
         if (deleteMode){
             if (network.getSelectedNodes().length === 0 && network.getSelectedEdges().length === 0){
                 return;
@@ -126,6 +119,34 @@ function initNetworkEvents(network){
             network.deleteSelected();
             network.unselectAll(); // Needed to avoid a bug when deleting several nodes successively. 
             return
+        } else if (!edgeMode && network.getSelectedNodes().length === 1){
+            let nodeId = network.getSelectedNodes()[0];
+            let nodes =  network.body.data.nodes;
+            let node = nodes.get(nodeId);
+            
+            setSelectedData({
+                node: true,
+                name: node.label,
+                code: node.code,
+                parents: network.getConnectedNodes(nodeId, "from").map(id => {return nodes.get(id).label}).join(", "),
+                children: network.getConnectedNodes(nodeId, "to").map(id => {return nodes.get(id).label}).join(", "),
+            })
+        } else if (!edgeMode && network.getSelectedEdges().length === 1){
+            let edgeId = network.getSelectedEdges()[0];
+            let edges = network.body.data.edges;
+            let edge = edges.get(edgeId);
+
+            let nodes =  network.body.data.nodes;
+            let fromNode = nodes.get(edge.from);
+            let toNode = nodes.get(edge.to);
+            debugger;
+            setSelectedData({
+                node: false,
+                condition: edge.label,
+                from: fromNode.label,
+                to: toNode.label,
+                bidirectional: network.getConnectedNodes(fromNode.id, "from").includes(toNode.id)
+            })
         }
         
     });
@@ -136,8 +157,8 @@ function initNetworkEvents(network){
             return;
         }
         let DOMpos = network.canvasToDOM(network.getPosition(nodeID))
-        editMenuPos({x:DOMpos.x, y:DOMpos.y})
-        editMenuVisible(true)
+        setMenuPos({x:DOMpos.x, y:DOMpos.y})
+        setMenuVisible(true)
         network.unselectAll(); // Needed to avoid a bug when deleting several nodes successively. 
     });
 
@@ -283,7 +304,7 @@ function initCanvasHeader() {
 
     // Create save button
     let importButton = document.createElement("button");
-    importButton.onclick = () => loadSpec(network, reloadVar);
+    importButton.onclick = () => loadSpec(network, setReloadVar);
     
     let importIcon = document.createElement("img")
     importIcon.src = loadImg
@@ -378,7 +399,7 @@ export function linkSeveralNodes(excludeItself){
 * @returns 
 */
 export function cancelAction() {
-    editMenuVisible(false);
+    setMenuVisible(false);
     network.unselectAll();
     cancelAddNodeMode();
     
@@ -423,7 +444,7 @@ function clearCanvas(){
     network.setData({});
     setNetworkCounter(0);
     setSpecInfos("");
-    reloadVar(Math.random());
+    setReloadVar(Math.random());
 }
 
 export function getNetwork(){

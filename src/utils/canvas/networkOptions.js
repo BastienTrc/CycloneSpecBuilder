@@ -95,7 +95,10 @@ export const networkOptions = {
                 type: "vee",
             },
         },
-        smooth:false, // Straight line or not
+        smooth:{
+            type: 'curvedCW', 
+            roundness: 0.025
+        }, // Straight line or not
     },
     physics: { // Physics are enabled to avoid overlap
         enabled : true,
