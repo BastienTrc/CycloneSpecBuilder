@@ -35,7 +35,7 @@ var hasBeenInit; // For unknown reason, initCanvas is run twice, causing problem
 var showResult; // Show result of compile
 var setMenuPos, setMenuVisible; // Context Menu function
 var nodeID; // ID of the node to change type
-var setReloadVar; // When called with random number, update specInfo
+var setReloadInfos; // When called with random number, update specInfo
 var setSelectedData; // To display selected node/edge on right panel
 
 /**
@@ -57,7 +57,7 @@ export function initCanvas(setOpen, setContent, setShowResult, menuPosFunc, menu
     }
     setMenuPos = menuPosFunc;
     setMenuVisible = menuVisibleFunc;
-    setReloadVar = reloadVarFunc
+    setReloadInfos = reloadVarFunc
     setSelectedData = setData;
     
     // create a container for the network
@@ -304,7 +304,7 @@ function initCanvasHeader() {
 
     // Create save button
     let importButton = document.createElement("button");
-    importButton.onclick = () => loadSpec(network, setReloadVar);
+    importButton.onclick = () => loadSpec(network, setReloadInfos);
     
     let importIcon = document.createElement("img")
     importIcon.src = loadImg
@@ -444,7 +444,7 @@ function clearCanvas(){
     network.setData({});
     setNetworkCounter(0);
     setSpecInfos("");
-    setReloadVar(Math.random());
+    setReloadInfos(Math.random());
 }
 
 export function getNetwork(){

@@ -55,12 +55,11 @@ function addTab(content, tabNumber){
 
 /**
  * 
- * @param {String} content the content to parse
- * @returns The content on whiched addBreaklines and addSemicolons was called
+ * @param {String} content the content to format
+ * @returns The content with tabs and trimmed
  */
-export function formatSemicolonBreakline(content, tabNumber){
+export function trimAndAddTabs(content, tabNumber){
     let lines = content.split("\n");
-    // If user forgot to add ';' at end of line, add it for him
     for (let i = 0; i < lines.length; i++) {
         lines[i] = lines[i].trim();
     };

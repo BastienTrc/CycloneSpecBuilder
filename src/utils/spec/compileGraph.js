@@ -1,6 +1,6 @@
 import { Network } from "vis-network/standalone";
 import { getSpecInfos } from "../../components/EditPanel/SpecInfos";
-import { formatSemicolonBreakline } from "./parseUtils";
+import { trimAndAddTabs } from "./parseUtils";
 
 var output = "";
 
@@ -32,6 +32,8 @@ export function compileGraph(network){
     edgeIndices.forEach(indice => {
         compileEdge(edgeSet.get(indice), nodeSet);
     })
+
+    compileInvariants(infos.invariants)
     
     // Goal 
     compileGoal(infos.goal);
@@ -50,7 +52,7 @@ function compileStart(infos){
     output +=  infos.debug ? "option-debug = true;\n" : "";
     
     output += `machine ${infos.title}{\n`;
-    output += formatSemicolonBreakline(infos.variables, 1) + "\n\n";
+    output += trimAndAddTabs(infos.variables, 1) + "\n\n";
 }
 
 /**
@@ -62,7 +64,7 @@ function compileNode(node){
     let isFinalNode = node.id.includes("Final");
     let isNormalNode = node.id.includes("Normal");
 
-    let codeLines = formatSemicolonBreakline(node.code, 2);
+    let codeLines = trimAndAddTabs(node.code, 2);
 
     output +=`\t${isNormalNode ? "" : "abstract "}${isStartNode ? "start " : ""}${isNormalNode ? "normal " : ""}${isFinalNode ? "final " : ""}state ${node.label} {\n${node.code ? codeLines : ""}\n\t}\n\n`;
 }
@@ -81,11 +83,23 @@ function compileEdge(edge, nodeSet){
 
 /**
  * Compile goal into spec code
+ * @param {Array<{name, condition, in}>} invariants invariant list to add
+ */
+function compileInvariants(invariants){
+    invariants.forEach(invariant => {
+        output +=
+    `\n\tinvariant ${invariant.name} {${invariant.condition.trim().slice(-1) === ";" ? invariant.condition : invariant.condition + ";"}} ${invariant.in.length !== 0 ? `in (${invariant.in.join(",")})` :"" } \n`
+    });
+    
+}
+
+/**
+ * Compile goal into spec code
  * @param {String} goalCondition conditions wrote under goal section
  */
 function compileGoal(goalCondition){
     output +=
-    `\n\tgoal{\n${formatSemicolonBreakline(goalCondition, 2)}\n\t}\n}`
+    `\n\tgoal{\n${trimAndAddTabs(goalCondition, 2)}\n\t}\n}`
 }
 
 /**

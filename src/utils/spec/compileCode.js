@@ -1,10 +1,12 @@
 import { setSpecInfos } from "../../components/EditPanel/SpecInfos";
-import { formatSemicolonBreakline } from "./parseUtils";
+import { trimAndAddTabs } from "./parseUtils";
 import { setNetworkCounter } from "../canvas/networkOptions";
 
 // Captures the name and code inside a node
-const nodeRegex = /(?:abstract )?(start )?(normal )?(final )?(?:state|node) (.*?) ?{\s*((?:.*?\s*)*?)}/g // Using greedy operator e.g. '*?'
+     // Using greedy operator e.g. '*?'
+const nodeRegex = /(?:abstract )?(start )?(normal )?(final )?(?:state|node) (.*?) ?{\s*((?:.*?\s*)*?)}/g
 const transRegex = /(?:trans|edge) {\s*(.*?) ?(?:where (.*? ?;?))?\s*}/g // Added '?' next to ; if user forgot semicolon (Should be stable)
+const invariantsRegex = /(?:invariant)\s+(.*?)\s+{\s*(.*?);?\s*}(?:\s+in\s+\((.*)\))?/g // Added '?' next to ; if user forgot semicolon (Should be stable)
 const goalRegex = /goal\s*{\s*((?:.*\s?)*)}\s*}/
 const machineRegex = /(?:machine|graph) (.*?) *{/
 const variablesTempRegex = /((?:abstract )?(?:start )?(?:normal )?(?:final )?(?:state|node) .* ?)/ // Match beginning of state/node declaration
@@ -14,7 +16,7 @@ var nodes;
 var labelToIdDict;
 var edges;
 var counter = 0;
-var infos = {title:"", variables:"", goal:"", extensionForm: "", debug:false}
+var infos = {title:"", variables:"", goal:"", extensionForm: "", debug:false, invariants:[]}
 
 /**
  * Compile the code into data for VisNetwork
@@ -35,16 +37,19 @@ export function compileCode(input, pngWanted){
     createNodes(nodeIterator)
     let edgesIterator = input.matchAll(transRegex);
     createEdges(edgesIterator)
+
     let goal = input.match(goalRegex);
     if (!goal?.length || goal?.length < 2 || goal?.[1] === undefined){
         return;
     }
     createGoal(goal?.[1])
+
     let machineTitle = input.match(machineRegex);
     createTitle(machineTitle?.[1])
     if (!machineTitle?.length || machineTitle?.length < 2 || machineTitle?.[1] === undefined){
         return;
     }
+
     let varTemp = input.match(variablesTempRegex);
     if (!varTemp){
         return
@@ -52,6 +57,11 @@ export function compileCode(input, pngWanted){
     let varPart = input.split(varTemp[0])[0]
     let variables = varPart.match(variablesRegex);
     createVariables(variables?.[1]);
+
+    let invariantsIterator = input.matchAll(invariantsRegex);
+    createInvariants(invariantsIterator);
+
+
     if (pngWanted){
         infos.extensionForm = "png";
     } else if (/option-trace ?= ?true/.test(input)){
@@ -102,7 +112,7 @@ function createNodes(nodesIterator){
         labelToIdDict[match[4]] = createdNode.id;
         createdNode.label = match[4];
         // Add breakline at each instruction and remove \n at the end
-        createdNode.code = formatSemicolonBreakline(match[5], 0);
+        createdNode.code = trimAndAddTabs(match[5], 0);
         
         nodes.push(createdNode)
         currentNode = nodesIterator.next();
@@ -160,7 +170,7 @@ function createEdges(edgesIterator){
  * @param {String} goal 
  */
 function createGoal(goal){
-    infos.goal = formatSemicolonBreakline(goal, 0);
+    infos.goal = trimAndAddTabs(goal, 0);
 }
 /**
  * 
@@ -174,7 +184,27 @@ function createTitle(title){
  * @param {String} variables 
  */
 function createVariables(variables){
-    infos.variables = formatSemicolonBreakline(variables, 0);
+    infos.variables = trimAndAddTabs(variables, 0);
+}
+
+/**
+ * 
+ * @param {IterableIterator<RegExpMatchArray>} invariantsIterator 
+ */
+function createInvariants(invariantsIterator){
+    let currentInvar = invariantsIterator.next();
+    infos.invariants = [];
+   
+    while (!currentInvar.done){
+        // Get matched string
+        let match = currentInvar.value;
+        // Construct node based on regexp infos
+        let condition = match[2].trim().slice(-1) === ";" ? match[2] : match[2] + ";"
+        let inList = match[3]? match[3].split(",") : [] 
+        let createdInvar = {name:match[1], condition:condition, in:inList};
+        infos.invariants.push(createdInvar)
+        currentInvar = invariantsIterator.next();
+    }
 }
 
 /**
@@ -192,7 +222,6 @@ function toStarNodes(createdEdge, exceptions){
         }
         newEdge.to = node.id;
         edges.push(newEdge);
-        
     });
 }
 
