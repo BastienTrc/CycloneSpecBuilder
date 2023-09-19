@@ -1,5 +1,5 @@
 import { DataSet } from "vis-data/standalone"
-import { getNetwork, pushSwitchButtons, setNodeContent } from "./canvasInit";
+import { getNetwork, pushSwitchButtons, setSelectedItemLabel } from "../../components/EditPanel/EditPanel";
 
 
 /**
@@ -20,7 +20,7 @@ export function switchNodeContent(initalNodeContent){
         
         // Select node to edit, setContent to update and edit
         network.selectNodes([node.id]);
-        setNodeContent(node.label);
+        setSelectedItemLabel(node.label);
         network.editNode();
 
         // Save position for when we change the network data
@@ -39,7 +39,7 @@ export function switchNodeContent(initalNodeContent){
     network.setData(data)
 
     // Need to rollback nodeContent when calling AddNode disable code mode
-    setNodeContent(initalNodeContent);
+    setSelectedItemLabel(initalNodeContent);
 }
 
 /**

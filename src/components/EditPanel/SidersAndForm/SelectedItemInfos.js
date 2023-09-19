@@ -2,7 +2,7 @@ import React from "react";
 import './SpecSelectedInfos.css'
 import { InputLabel, TextField } from "@mui/material";
 
-function SelectedInfos({selectedData}){
+function SelectedItemInfos({selectedData}){
 
     const infos = selectedData.node ? ["name","code", "parents", "children"] : ["condition","from", "to", "bidirectional"]
 
@@ -21,4 +21,4 @@ function SelectedInfos({selectedData}){
     )
 }
 
-export default SelectedInfos
+export default SelectedItemInfos

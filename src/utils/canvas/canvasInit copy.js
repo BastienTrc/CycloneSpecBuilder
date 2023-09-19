@@ -39,7 +39,74 @@ var nodeID; // ID of the node to change type
 var setReloadInfos; // When called with random number, update specInfo
 var setSelectedData; // To display selected node/edge on right panel
 
+/**
+* Draw canvas with sample data and init every needed function
+* @param {*} setOpen 
+* @param {*} setContent 
+* @returns 
+*/
+export function initCanvas(setOpen, setContent, setShowResult, menuPosFunc, menuVisibleFunc, reloadVarFunc, setData){
+    if (hasBeenInit){
+        return;
+    }
+    hasBeenInit = true;
+    setOpenDialog = setOpen;
+    setEditContent = setContent;
+    showResult = (value) => {
+        hasBeenInit = false; // Once we show result, canvas will disappear and won't be loaded.
+        setShowResult(value)
+    }
+    setMenuPos = menuPosFunc;
+    setMenuVisible = menuVisibleFunc;
+    setReloadInfos = reloadVarFunc
+    setSelectedData = setData;
+    
+    // create a container for the network
+    var container = document.getElementById("canvasContainer");
+    if (!container){
+        return; //TODO Better handling
+    }
+    
+    var data = getData();
+    if (data === undefined || data.nodes === undefined){
+        data = {}
+        // data = generateData()
+    }
+    data.nodes = new DataSet(data.nodes);
+    data.edges = new DataSet(data.edges);
+    
+    // @ts-ignore Error checking problem with vis-network
+    network = new Network(container, data, networkOptions);
+    
+    initNetworkEvents(network);
+    initKeyEvents();
+    initCanvasHeader();
+}
 
+function generateData(){
+    // create an array with nodes
+    var nodes = [
+        { id: "StartNormal1", label: "Start", font:nodeFont, code:"int a = 5;", group:"StartNormal"},
+        { id: "Normal2", label: "firstStep", font:nodeFont, code:"", group:"Normal"},
+        { id: "NormalFinal3", label: "firstStop", font:nodeFont, code:"int c = b + 3;", group:"NormalFinal"},
+        { id: "NormalFinal4", label: "secondStop", font:nodeFont, code:"", group:"NormalFinal"},
+        { id: "Normal5", label: "secondStep", font:nodeFont, code:"int res; a < b => (res == 0);", group:"Normal"},
+    ];
+    
+    // create an array with edges
+    // @ts-ignore Error checking problem with vis-network
+    var edges = [
+        { from: "StartNormal1", to: "NormalFinal3"},
+        { from: "StartNormal1", to: "Normal2" },
+        { from: "Normal2", to: "NormalFinal4", label: "x > 0 && a < b" },
+        { from: "Normal2", to: "Normal5", label: "x >= 0 || a == b"},
+        { from: "Normal5", to: "NormalFinal4", label: "canEnd == true"},
+    ];
+    return {
+        nodes: nodes,
+        edges: edges,
+    };
+}
 
 function initNetworkEvents(network){
     // Add listener in delete mode, click an element to delete it

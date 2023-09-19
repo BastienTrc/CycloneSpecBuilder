@@ -1,5 +1,5 @@
 import { Network } from "vis-network/standalone";
-import { getSpecInfos } from "../../components/EditPanel/SpecInfos";
+import { getSpecInfos } from "../../components/EditPanel/SidersAndForm/SpecInfos";
 import { trimAndAddTabs } from "./parseUtils";
 
 var output = "";

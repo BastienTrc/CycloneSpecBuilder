@@ -1,7 +1,7 @@
 import {saveAs} from 'file-saver';
 import { DataSet } from "vis-data/standalone"
-import { getSpecInfos, setSpecInfos } from '../../components/EditPanel/SpecInfos';
-import { setNetworkCounter } from '../canvas/networkOptions';
+import { getSpecInfos, setSpecInfos } from '../../components/EditPanel/SidersAndForm/SpecInfos';
+import { setNetworkCounter } from '../../components/EditPanel/EditPanel';
 
 var input = document.createElement('input');
 var network;

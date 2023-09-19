@@ -3,7 +3,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import './SpecSelectedInfos.css'
 import React from 'react';
-import { getNetwork } from '../../utils/canvas/canvasInit';
+import { getNetwork } from '../EditPanel';
 
 var infos = {title:"",  goal:"", extensionForm: "", debug:false}
 var varList = [];
@@ -25,7 +25,10 @@ function SpecInfos({reloadInfos}) {
     }
     
     React.useEffect( () => {
-        network = network ? network : getNetwork()
+        network = getNetwork()
+        if (!network){
+            return
+        }
         nodeList = network.body.nodeIndices.map(nodeId => {return network.body.data.nodes.get(nodeId).label})
         setReloadNodesList(Math.random())
         

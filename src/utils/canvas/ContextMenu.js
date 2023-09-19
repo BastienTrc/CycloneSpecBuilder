@@ -1,6 +1,6 @@
 import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
 import React from "react"
-import { editNodeType } from "./canvasInit";
+import { editNodeType } from "../../components/EditPanel/EditPanel";
 
 
 export function ContextMenu({pos, visible, setVisible}){

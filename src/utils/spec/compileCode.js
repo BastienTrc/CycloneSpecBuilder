@@ -1,6 +1,6 @@
-import { setSpecInfos } from "../../components/EditPanel/SpecInfos";
+import { setSpecInfos } from "../../components/EditPanel/SidersAndForm/SpecInfos";
 import { trimAndAddTabs } from "./parseUtils";
-import { setNetworkCounter } from "../canvas/networkOptions";
+import { setNetworkCounter } from "../../components/EditPanel/EditPanel";
 
 // Captures the name and code inside a node
      // Using greedy operator e.g. '*?'

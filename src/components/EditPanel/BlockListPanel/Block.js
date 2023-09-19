@@ -1,7 +1,7 @@
 import React from 'react';
 
-function Nodes({id, setNodeContent}) {
-    let className = "libraryNode ";
+function Block({id, addNode}) {
+    let className = "libraryNode "+id; // If id is abstract will add dashed lines
     // Add all modifiers for style
     let modifiers = ["Start", "Normal", "Final"];
     modifiers.forEach( modifier => {
@@ -21,9 +21,9 @@ function Nodes({id, setNodeContent}) {
     
     return(
         <div>
-            <button id={id} className={className} onClick={() => setNodeContent(id)}> {id} </button>
+            <button id={id} className={className} onClick={() => addNode(id)}> {id} </button>
         </div>
     )
 }
 
-export default Nodes;
+export default Block;
