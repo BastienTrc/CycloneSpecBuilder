@@ -13,19 +13,24 @@ def compileCode():
             extension = "dot"
             pngWanted = True
         # Write spec in file
-        with open("Cyclone/tmp/spec.cyclone",'w') as spec:
+        with open(os.path.join("Cyclone","tmp","spec.cyclone"),'w') as spec:
             spec.write(data['specCode'])
             spec.close()
-        # Reset trace
-        if os.path.exists("Cyclone/trace/spec."+extension):
-            os.remove("Cyclone/trace/spec."+extension)
-        # Compile
+       
+        traceFolder = os.path.join("Cyclone","trace")
+       
+        # Prepare Compile
         if (platform.system() == "Darwin"):
             p = subprocess.Popen("cd Cyclone && export DYLD_LIBRARY_PATH=. && java -jar cyclone.jar --nocolor tmp/spec.cyclone", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         elif (platform.system() == "Linux"):
             p = subprocess.Popen("cd Cyclone && export LD_LIBRARY_PATH=. && java -jar cyclone.jar --nocolor tmp/spec.cyclone", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         else : 
             p = subprocess.Popen("cd Cyclone && java -jar cyclone.jar --nocolor tmp/spec.cyclone", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            traceFolder = os.path.join("Cyclone","trace","tmp")
+
+        # Reset trace
+        if os.path.exists(os.path.join(traceFolder,"spec."+extension)):
+            os.remove(os.path.join(traceFolder,"spec."+extension))
 
         p.wait()
         stdout = p.stdout.read().decode()
@@ -33,19 +38,16 @@ def compileCode():
 
         if stderr != "":
              return str(stderr), 404
-        if not os.path.exists("Cyclone/trace/spec."+extension):
+        if not os.path.exists(os.path.join(traceFolder,"spec."+extension)):
             return {"terminal":stdout}
-        with open("Cyclone/trace/spec."+extension,'r') as trace:
+        with open(os.path.join(traceFolder,"spec."+extension),'r') as trace:
             content = trace.read()
 
         if pngWanted:
-            p = subprocess.Popen("dot -Tpng Cyclone/trace/spec.dot -o Cyclone/trace/spec.png", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            p = subprocess.Popen("dot -Tpng "+os.path.join(traceFolder, "spec.dot")+" -o "+os.path.join(traceFolder, "spec.png"), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             p.wait()
-            with open("Cyclone/trace/spec.png","rb") as f:
+            with open(os.path.join(traceFolder,"spec.png"),"rb") as f:
                 image=base64.b64encode(f.read()).decode()
                 return {"terminal" : stdout.split("Trace Generated:")[0] +"\n", "image": image}
         # Stdout is cut to remove absolute path
         return {"terminal" : stdout.split("Trace Generated:")[0] +"\n"+ content}
-    
-
-    

@@ -1,0 +1,59 @@
+Trace for DefuseBomb
+[Time Stamp]:19:43:09, sept.-27-2023
+[Location]:tmp/spec.cyclone
+[States]:7 
+EmptyJug1 EmptyJug2 FillJug1 FillJug2 Jug1ToJug2 Jug2ToJug1 Start 
+[Trans]:42
+[Start State]:Start
+[Final State(s)]:
+[Trace Length]:6
+
+[Goal]:
+assert ((== jug2,4)->bool)
+[Reach State(s)]:Jug2ToJug1 EmptyJug1 Jug1ToJug2 FillJug1 FillJug2 EmptyJug2 
+[Mode]:Combo  - [2 3 4 5 6 ]
+
+
+
+[1].@Start
+amount:0
+jug1:0
+jug2:0
+
+
+[2].@FillJug2
+amount:0
+jug1:0
+jug2:5
+
+
+[3].@Jug2ToJug1
+amount:3
+jug1:3
+jug2:2
+
+
+[4].@EmptyJug1
+amount:3
+jug1:0
+jug2:2
+
+
+[5].@Jug2ToJug1
+amount:2
+jug1:2
+jug2:0
+
+
+[6].@FillJug2
+amount:2
+jug1:2
+jug2:5
+
+
+[7].@Jug2ToJug1
+amount:1
+jug1:3
+jug2:4
+
+
