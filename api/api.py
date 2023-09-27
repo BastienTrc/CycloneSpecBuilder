@@ -21,12 +21,12 @@ def compileCode():
        
         # Prepare Compile
         if (platform.system() == "Darwin"):
-            p = subprocess.Popen("cd Cyclone && export DYLD_LIBRARY_PATH=. && java -jar cyclone.jar --nocolor tmp/spec.cyclone", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            p = subprocess.Popen("cd Cyclone && export DYLD_LIBRARY_PATH=. && java -jar cyclone.jar --nocolor "+os.path.join("tmp","spec.cyclone"), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         elif (platform.system() == "Linux"):
-            p = subprocess.Popen("cd Cyclone && export LD_LIBRARY_PATH=. && java -jar cyclone.jar --nocolor tmp/spec.cyclone", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            p = subprocess.Popen("cd Cyclone && export LD_LIBRARY_PATH=. && java -jar cyclone.jar --nocolor "+os.path.join("tmp","spec.cyclone"), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         else : 
-            p = subprocess.Popen("cd Cyclone && java -jar cyclone.jar --nocolor tmp/spec.cyclone", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-            traceFolder = os.path.join("Cyclone","trace","tmp")
+            p = subprocess.Popen("cd Cyclone && java -jar cyclone.jar --nocolor " +os.path.join("tmp","spec.cyclone"), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            
 
         # Reset trace
         if os.path.exists(os.path.join(traceFolder,"spec."+extension)):
@@ -37,9 +37,9 @@ def compileCode():
         stderr = p.stderr.read().decode()
 
         if stderr != "":
-             return str(stderr), 404
+             return str(stderr.split("Trace Generated:")[0]), 404
         if not os.path.exists(os.path.join(traceFolder,"spec."+extension)):
-            return {"terminal":stdout}
+            return {"terminal":stdout.split("Trace Generated:")[0]}
         with open(os.path.join(traceFolder,"spec."+extension),'r') as trace:
             content = trace.read()
 
@@ -51,3 +51,4 @@ def compileCode():
                 return {"terminal" : stdout.split("Trace Generated:")[0] +"\n", "image": image}
         # Stdout is cut to remove absolute path
         return {"terminal" : stdout.split("Trace Generated:")[0] +"\n"+ content}
+    
